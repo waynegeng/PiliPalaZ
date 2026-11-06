@@ -2,7 +2,7 @@
 
 工具链与上游一致：Flutter 3.24.4 / Dart 3.5.4。
 
-2026-11-06 本地 24 项测试通过，静态检查无 error（项目仍有 warning/info）。本版自动验证覆盖既有播放与纯净首页修复，以及标签迁移、排序回退、隐藏 Up、缺失视频字段、分页、更新空结果和顶栏滚动行为。命令与结果以 [GitHub 构建记录](https://github.com/waynegeng/PiliPalaZ/actions/workflows/build-apk.yml) 为准。
+2026-11-06 本地 25 项测试通过，静态检查无 error（项目仍有 warning/info）。本版自动验证覆盖既有播放与纯净首页修复，以及标签迁移、排序回退、隐藏 Up、缺失视频字段、分页、更新空结果和顶栏滚动行为。命令与结果以 [GitHub 构建记录](https://github.com/waynegeng/PiliPalaZ/actions/workflows/build-apk.yml) 为准。
 
 尚未连接手机进行共存安装、登录、原生播放和方向切换验收；iOS/桌面端更名配置已同步，本次仅交付 Android APK。
 

@@ -227,7 +227,46 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
             )));
   }
 
-  Widget videoGrid(List<DynamicItemModel>? items) => SliverPadding(
+  Widget videoGrid(List<DynamicItemModel>? items) {
+    if (items == null) return videoCardGrid(null);
+    final slivers = <Widget>[];
+    final group = <DynamicItemModel>[];
+    void flushGroup() {
+      if (group.isEmpty) return;
+      slivers.add(videoCardGrid(List.of(group)));
+      group.clear();
+    }
+
+    for (final item in items) {
+      if (dynamicVideoCard(item) != null) {
+        group.add(item);
+      } else {
+        flushGroup();
+        slivers.add(SliverToBoxAdapter(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: StyleString.safeSpace),
+            child: Card(
+                child: ListTile(
+              dense: true,
+              leading: const Icon(Icons.videocam_off_outlined),
+              title: const Text('视频暂不可用'),
+              subtitle: item.modules?.moduleDynamic?.major?.archive?.title ==
+                      null
+                  ? null
+                  : Text(item.modules!.moduleDynamic!.major!.archive!.title!),
+            )),
+          ),
+        ));
+      }
+    }
+    flushGroup();
+    return slivers.isEmpty
+        ? const NoData()
+        : SliverMainAxisGroup(slivers: slivers);
+  }
+
+  Widget videoCardGrid(List<DynamicItemModel>? items) => SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: StyleString.safeSpace),
         sliver: SliverGrid(
           gridDelegate: SliverGridDelegateWithExtentAndRatio(
@@ -240,8 +279,6 @@ class _DynamicsTabPageState extends State<DynamicsTabPage>
           delegate: SliverChildBuilderDelegate((context, index) {
             if (items == null) return const VideoCardVSkeleton();
             final video = dynamicVideoCard(items[index]);
-            if (video == null)
-              return const Card(child: Center(child: Text('视频暂不可用')));
             return VideoCardV(videoItem: video);
           }, childCount: items?.length ?? 10),
         ),

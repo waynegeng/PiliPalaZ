@@ -1,3 +1,4 @@
+import 'package:pilipalaz/pages/dynamics/tab/view.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:pilipalaz/pages/setting/pages/dynamic_tabbar_set.dart';
 import 'package:dio/dio.dart';
@@ -164,6 +165,44 @@ void main() {
     expect(controller.dynamicsList.length, 1);
     expect(offsets, ['', 'next', '']);
     controller.onClose();
+  });
+  testWidgets(
+      'unavailable submission is compact and disposing it preserves shared filter',
+      (tester) async {
+    Request();
+    Request.dio.interceptors.clear();
+    Request.dio.interceptors
+        .add(InterceptorsWrapper(onRequest: (options, handler) {
+      handler.resolve(Response(requestOptions: options, data: {
+        'code': 0,
+        'data': {
+          'items': [
+            {'id_str': 'invalid'}
+          ],
+          'offset': ''
+        }
+      }));
+    }));
+    late DynamicsController controller;
+    await tester.runAsync(() async {
+      controller = Get.put(DynamicsController());
+    });
+    await tester.pumpWidget(const GetMaterialApp(
+        home: Scaffold(body: DynamicsTabPage(dynamicsType: 'video'))));
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pumpAndSettle();
+    expect(find.text('视频暂不可用'), findsOneWidget);
+    expect(tester.getSize(find.byType(Card)).height, lessThan(100));
+    await tester.pumpWidget(const SizedBox());
+    expect(Get.isRegistered<DynamicsTabController>(tag: 'video'), isFalse);
+    int selected = -1;
+    final subscription = controller.mid.listen((mid) => selected = mid);
+    controller.mid.value = 123;
+    await tester.pump();
+    expect(selected, 123);
+    await subscription.cancel();
+    expect(tester.takeException(), isNull);
   });
   testWidgets('shared card content renders missing statistics safely',
       (tester) async {
