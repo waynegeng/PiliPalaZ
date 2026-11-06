@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/models/common/dynamics_type.dart';
-import 'package:PiliPalaX/models/common/reply_sort_type.dart';
-import 'package:PiliPalaX/pages/setting/widgets/select_dialog.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/models/common/dynamics_type.dart';
+import 'package:pilipalaz/models/common/reply_sort_type.dart';
+import 'package:pilipalaz/pages/setting/widgets/select_dialog.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../../utils/utils.dart';
@@ -13,7 +13,10 @@ import 'controller.dart';
 import 'widgets/switch_item.dart';
 
 class ExtraSetting extends StatefulWidget {
-  const ExtraSetting({super.key});
+  const ExtraSetting(
+      {super.key, this.section = 'other', this.embedded = false});
+  final String section;
+  final bool embedded;
 
   @override
   State<ExtraSetting> createState() => _ExtraSettingState();
@@ -130,203 +133,191 @@ class _ExtraSettingState extends State<ExtraSetting> {
         .textTheme
         .labelMedium!
         .copyWith(color: Theme.of(context).colorScheme.outline);
+    final items = <Widget>[
+      if (widget.section == 'other')
+        Obx(
+          () => ListTile(
+            enableFeedback: true,
+            onTap: () => settingController.onOpenFeedBack(),
+            leading: const Icon(Icons.vibration_outlined),
+            title: Text('震动反馈', style: titleStyle),
+            subtitle: Text('请确定手机设置中已开启震动反馈', style: subTitleStyle),
+            trailing: Transform.scale(
+              alignment: Alignment.centerRight,
+              scale: 0.8,
+              child: Switch(
+                  thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+                      (Set<MaterialState> states) {
+                    if (states.isNotEmpty &&
+                        states.first == MaterialState.selected) {
+                      return const Icon(Icons.done);
+                    }
+                    return null;
+                  }),
+                  value: settingController.feedBackEnable.value,
+                  onChanged: (value) => settingController.onOpenFeedBack()),
+            ),
+          ),
+        ),
+      if (widget.section == 'home')
+        const SetSwitchItem(
+          title: '大家都在搜',
+          subTitle: '是否展示「大家都在搜」',
+          leading: Icon(Icons.data_thresholding_outlined),
+          setKey: SettingBoxKey.enableHotKey,
+          defaultVal: true,
+        ),
+      if (widget.section == 'home')
+        SetSwitchItem(
+          title: '搜索默认词',
+          subTitle: '是否展示搜索框默认词',
+          leading: const Icon(Icons.whatshot_outlined),
+          setKey: SettingBoxKey.enableSearchWord,
+          defaultVal: true,
+          callFn: (val) {
+            Get.find<HomeController>().defaultSearch.value = '';
+          },
+        ),
+      if (widget.section == 'player')
+        const SetSwitchItem(
+          title: '快速收藏',
+          subTitle: '点按收藏至默认，长按选择文件夹',
+          leading: Icon(Icons.bookmark_add_outlined),
+          setKey: SettingBoxKey.enableQuickFav,
+          defaultVal: false,
+        ),
+      if (widget.section == 'player')
+        const SetSwitchItem(
+          title: '评论区搜索关键词',
+          subTitle: '展示评论区搜索关键词',
+          leading: Icon(Icons.search_outlined),
+          setKey: SettingBoxKey.enableWordRe,
+          defaultVal: false,
+        ),
+      if (widget.section == 'player')
+        const SetSwitchItem(
+          title: '启用ai总结',
+          subTitle: '视频详情页开启ai总结',
+          leading: Icon(Icons.engineering_outlined),
+          setKey: SettingBoxKey.enableAi,
+          defaultVal: true,
+        ),
+      if (widget.section == 'privacy')
+        const SetSwitchItem(
+          title: '消息页禁用“收到的赞”功能',
+          subTitle: '禁止打开入口，降低网络社交依赖',
+          leading: Icon(Icons.beach_access_outlined),
+          setKey: SettingBoxKey.disableLikeMsg,
+          defaultVal: false,
+        ),
+      if (widget.section == 'player')
+        const SetSwitchItem(
+          title: '默认展示评论区',
+          subTitle: '在视频详情页默认切换至评论区页（仅tab型布局）',
+          leading: Icon(Icons.mode_comment_outlined),
+          setKey: SettingBoxKey.defaultShowComment,
+          defaultVal: false,
+        ),
+      if (widget.section == 'player')
+        SetSwitchItem(
+          title: '默认展开简介',
+          subTitle: '在视频详情页默认展开简介',
+          leading: Icon(MdiIcons.arrowExpandDown),
+          setKey: SettingBoxKey.defaultExpandIntroduction,
+          defaultVal: false,
+        ),
+      if (widget.section == 'player')
+        ListTile(
+          dense: false,
+          title: Text('评论展示', style: titleStyle),
+          leading: const Icon(Icons.whatshot_outlined),
+          subtitle: Text(
+            '当前优先展示「${ReplySortType.values[defaultReplySort].titles}」',
+            style: subTitleStyle,
+          ),
+          onTap: () async {
+            int? result = await showDialog(
+              context: context,
+              builder: (context) {
+                return SelectDialog<int>(
+                    title: '评论展示',
+                    value: defaultReplySort,
+                    values: ReplySortType.values.map((e) {
+                      return {'title': e.titles, 'value': e.index};
+                    }).toList());
+              },
+            );
+            if (result != null) {
+              defaultReplySort = result;
+              setting.put(SettingBoxKey.replySortType, result);
+              setState(() {});
+            }
+          },
+        ),
+      if (widget.section == 'other')
+        ListTile(
+          enableFeedback: true,
+          onTap: () => twoFADialog(),
+          leading: const Icon(Icons.airplane_ticket_outlined),
+          title: Text('设置代理', style: titleStyle),
+          subtitle: Text('设置代理 host:port', style: subTitleStyle),
+          trailing: Transform.scale(
+            alignment: Alignment.centerRight,
+            scale: 0.8,
+            child: Switch(
+              thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+                  (Set<MaterialState> states) {
+                if (states.isNotEmpty &&
+                    states.first == MaterialState.selected) {
+                  return const Icon(Icons.done);
+                }
+                return null;
+              }),
+              value: enableSystemProxy,
+              onChanged: (val) {
+                setting.put(
+                    SettingBoxKey.enableSystemProxy, !enableSystemProxy);
+                setState(() {
+                  enableSystemProxy = !enableSystemProxy;
+                });
+              },
+            ),
+          ),
+        ),
+      if (widget.section == 'other')
+        const SetSwitchItem(
+          title: '自动清除缓存',
+          subTitle: '每次启动时清除缓存',
+          leading: Icon(Icons.auto_delete_outlined),
+          setKey: SettingBoxKey.autoClearCache,
+          defaultVal: false,
+        ),
+      if (widget.section == 'other')
+        SetSwitchItem(
+          title: '检查更新',
+          subTitle: '每次启动时检查是否需要更新',
+          leading: const Icon(Icons.system_update_alt_outlined),
+          setKey: SettingBoxKey.autoUpdate,
+          defaultVal: false,
+          callFn: (val) {
+            if (val) {
+              Utils.checkUpdate();
+            }
+          },
+        ),
+    ];
+    if (widget.embedded) return Column(children: items);
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0,
         title: Text(
-          '其它设置',
+          '其他',
           style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
       body: ListView(
-        children: [
-          Obx(
-            () => ListTile(
-              enableFeedback: true,
-              onTap: () => settingController.onOpenFeedBack(),
-              leading: const Icon(Icons.vibration_outlined),
-              title: Text('震动反馈', style: titleStyle),
-              subtitle: Text('请确定手机设置中已开启震动反馈', style: subTitleStyle),
-              trailing: Transform.scale(
-                alignment: Alignment.centerRight,
-                scale: 0.8,
-                child: Switch(
-                    thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
-                        (Set<MaterialState> states) {
-                      if (states.isNotEmpty &&
-                          states.first == MaterialState.selected) {
-                        return const Icon(Icons.done);
-                      }
-                      return null; // All other states will use the default thumbIcon.
-                    }),
-                    value: settingController.feedBackEnable.value,
-                    onChanged: (value) => settingController.onOpenFeedBack()),
-              ),
-            ),
-          ),
-          const SetSwitchItem(
-            title: '大家都在搜',
-            subTitle: '是否展示「大家都在搜」',
-            leading: Icon(Icons.data_thresholding_outlined),
-            setKey: SettingBoxKey.enableHotKey,
-            defaultVal: true,
-          ),
-          SetSwitchItem(
-            title: '搜索默认词',
-            subTitle: '是否展示搜索框默认词',
-            leading: const Icon(Icons.whatshot_outlined),
-            setKey: SettingBoxKey.enableSearchWord,
-            defaultVal: true,
-            callFn: (val) {
-              Get.find<HomeController>().defaultSearch.value = '';
-            },
-          ),
-          const SetSwitchItem(
-            title: '快速收藏',
-            subTitle: '点按收藏至默认，长按选择文件夹',
-            leading: Icon(Icons.bookmark_add_outlined),
-            setKey: SettingBoxKey.enableQuickFav,
-            defaultVal: false,
-          ),
-          const SetSwitchItem(
-            title: '评论区搜索关键词',
-            subTitle: '展示评论区搜索关键词',
-            leading: Icon(Icons.search_outlined),
-            setKey: SettingBoxKey.enableWordRe,
-            defaultVal: false,
-          ),
-          const SetSwitchItem(
-            title: '启用ai总结',
-            subTitle: '视频详情页开启ai总结',
-            leading: Icon(Icons.engineering_outlined),
-            setKey: SettingBoxKey.enableAi,
-            defaultVal: true,
-          ),
-          const SetSwitchItem(
-            title: '消息页禁用“收到的赞”功能',
-            subTitle: '禁止打开入口，降低网络社交依赖',
-            leading: Icon(Icons.beach_access_outlined),
-            setKey: SettingBoxKey.disableLikeMsg,
-            defaultVal: false,
-          ),
-          const SetSwitchItem(
-            title: '默认展示评论区',
-            subTitle: '在视频详情页默认切换至评论区页（仅tab型布局）',
-            leading: Icon(Icons.mode_comment_outlined),
-            setKey: SettingBoxKey.defaultShowComment,
-            defaultVal: false,
-          ),
-          SetSwitchItem(
-            title: '默认展开简介',
-            subTitle: '在视频详情页默认展开简介',
-            leading: Icon(MdiIcons.arrowExpandDown),
-            setKey: SettingBoxKey.defaultExpandIntroduction,
-            defaultVal: false,
-          ),
-          ListTile(
-            dense: false,
-            title: Text('评论展示', style: titleStyle),
-            leading: const Icon(Icons.whatshot_outlined),
-            subtitle: Text(
-              '当前优先展示「${ReplySortType.values[defaultReplySort].titles}」',
-              style: subTitleStyle,
-            ),
-            onTap: () async {
-              int? result = await showDialog(
-                context: context,
-                builder: (context) {
-                  return SelectDialog<int>(
-                      title: '评论展示',
-                      value: defaultReplySort,
-                      values: ReplySortType.values.map((e) {
-                        return {'title': e.titles, 'value': e.index};
-                      }).toList());
-                },
-              );
-              if (result != null) {
-                defaultReplySort = result;
-                setting.put(SettingBoxKey.replySortType, result);
-                setState(() {});
-              }
-            },
-          ),
-          ListTile(
-            dense: false,
-            title: Text('动态展示', style: titleStyle),
-            leading: const Icon(Icons.dynamic_feed_outlined),
-            subtitle: Text(
-              '当前优先展示「${DynamicsType.values[defaultDynamicType].labels}」',
-              style: subTitleStyle,
-            ),
-            onTap: () async {
-              int? result = await showDialog(
-                context: context,
-                builder: (context) {
-                  return SelectDialog<int>(
-                      title: '动态展示',
-                      value: defaultDynamicType,
-                      values: DynamicsType.values.sublist(0, 4).map((e) {
-                        return {'title': e.labels, 'value': e.index};
-                      }).toList());
-                },
-              );
-              if (result != null) {
-                defaultDynamicType = result;
-                setting.put(SettingBoxKey.defaultDynamicType, result);
-                setState(() {});
-              }
-            },
-          ),
-          ListTile(
-            enableFeedback: true,
-            onTap: () => twoFADialog(),
-            leading: const Icon(Icons.airplane_ticket_outlined),
-            title: Text('设置代理', style: titleStyle),
-            subtitle: Text('设置代理 host:port', style: subTitleStyle),
-            trailing: Transform.scale(
-              alignment: Alignment.centerRight,
-              scale: 0.8,
-              child: Switch(
-                thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
-                    (Set<MaterialState> states) {
-                  if (states.isNotEmpty &&
-                      states.first == MaterialState.selected) {
-                    return const Icon(Icons.done);
-                  }
-                  return null; // All other states will use the default thumbIcon.
-                }),
-                value: enableSystemProxy,
-                onChanged: (val) {
-                  setting.put(
-                      SettingBoxKey.enableSystemProxy, !enableSystemProxy);
-                  setState(() {
-                    enableSystemProxy = !enableSystemProxy;
-                  });
-                },
-              ),
-            ),
-          ),
-          const SetSwitchItem(
-            title: '自动清除缓存',
-            subTitle: '每次启动时清除缓存',
-            leading: Icon(Icons.auto_delete_outlined),
-            setKey: SettingBoxKey.autoClearCache,
-            defaultVal: false,
-          ),
-          SetSwitchItem(
-            title: '检查更新',
-            subTitle: '每次启动时检查是否需要更新',
-            leading: const Icon(Icons.system_update_alt_outlined),
-            setKey: SettingBoxKey.autoUpdate,
-            defaultVal: false,
-            callFn: (val) {
-              if (val) {
-                Utils.checkUpdate();
-              }
-            },
-          ),
-        ],
+        children: items,
       ),
     );
   }

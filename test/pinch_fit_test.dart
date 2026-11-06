@@ -1,4 +1,4 @@
-import 'package:PiliPalaX/plugin/pl_player/utils/pinch_fit.dart';
+import 'package:pilipalaz/plugin/pl_player/utils/pinch_fit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

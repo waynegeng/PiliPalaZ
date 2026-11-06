@@ -4,12 +4,12 @@ import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/constants.dart';
-import 'package:PiliPalaX/common/skeleton/video_card_v.dart';
-import 'package:PiliPalaX/common/widgets/http_error.dart';
-import 'package:PiliPalaX/common/widgets/video_card_v.dart';
-import 'package:PiliPalaX/pages/home/index.dart';
-import 'package:PiliPalaX/pages/main/index.dart';
+import 'package:pilipalaz/common/constants.dart';
+import 'package:pilipalaz/common/skeleton/video_card_v.dart';
+import 'package:pilipalaz/common/widgets/http_error.dart';
+import 'package:pilipalaz/common/widgets/video_card_v.dart';
+import 'package:pilipalaz/pages/home/index.dart';
+import 'package:pilipalaz/pages/main/index.dart';
 
 import '../../utils/grid.dart';
 import 'controller.dart';

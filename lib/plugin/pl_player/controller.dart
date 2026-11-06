@@ -23,13 +23,13 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:canvas_danmaku/canvas_danmaku.dart';
-import 'package:PiliPalaX/http/video.dart';
-import 'package:PiliPalaX/pages/mine/controller.dart';
-import 'package:PiliPalaX/plugin/pl_player/index.dart';
-import 'package:PiliPalaX/plugin/pl_player/models/play_repeat.dart';
-import 'package:PiliPalaX/services/service_locator.dart';
-import 'package:PiliPalaX/utils/feed_back.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/http/video.dart';
+import 'package:pilipalaz/pages/mine/controller.dart';
+import 'package:pilipalaz/plugin/pl_player/index.dart';
+import 'package:pilipalaz/plugin/pl_player/models/play_repeat.dart';
+import 'package:pilipalaz/services/service_locator.dart';
+import 'package:pilipalaz/utils/feed_back.dart';
+import 'package:pilipalaz/utils/storage.dart';
 // import 'package:screen_brightness/screen_brightness.dart';
 import 'package:universal_platform/universal_platform.dart';
 import '../../models/video/play/subtitle.dart';
@@ -475,7 +475,7 @@ class PlPlayerController {
             enabledWhenBackground: true,
             videoPath: dataSource.videoSource!,
             audioPath: dataSource.audioSource!,
-            packageName: 'PiliPalaX'),
+            packageName: 'PiliPalaZ'),
         android: FlPiPAndroidConfig(
           enabledWhenBackground: true,
           aspectRatio: Rational(

@@ -100,7 +100,9 @@ class DynamicItemModel {
   DynamicItemModel.fromJson(Map<String, dynamic> json) {
     basic = json['basic'];
     idStr = _parseString(json['id_str']);
-    modules = ItemModulesModel.fromJson(json['modules']);
+    modules = json['modules'] == null
+        ? null
+        : ItemModulesModel.fromJson(json['modules']);
     orig = json['orig'] != null ? ItemOrigModel.fromJson(json['orig']) : null;
     type = _parseString(json['type']);
     visible = _parseBool(json['visible']);
@@ -125,7 +127,9 @@ class ItemOrigModel {
   ItemOrigModel.fromJson(Map<String, dynamic> json) {
     basic = json['basic'];
     isStr = _parseString(json['is_str']);
-    modules = ItemModulesModel.fromJson(json['modules']);
+    modules = json['modules'] == null
+        ? null
+        : ItemModulesModel.fromJson(json['modules']);
     type = _parseString(json['type']);
     visible = _parseBool(json['visible']);
   }

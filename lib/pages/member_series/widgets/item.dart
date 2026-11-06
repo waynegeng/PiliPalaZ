@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/constants.dart';
-import 'package:PiliPalaX/common/widgets/badge.dart';
-import 'package:PiliPalaX/common/widgets/network_img_layer.dart';
-import 'package:PiliPalaX/common/widgets/stat/view.dart';
-import 'package:PiliPalaX/http/search.dart';
-import 'package:PiliPalaX/utils/utils.dart';
+import 'package:pilipalaz/common/constants.dart';
+import 'package:pilipalaz/common/widgets/badge.dart';
+import 'package:pilipalaz/common/widgets/network_img_layer.dart';
+import 'package:pilipalaz/common/widgets/stat/view.dart';
+import 'package:pilipalaz/http/search.dart';
+import 'package:pilipalaz/utils/utils.dart';
 
 class MemberSeriesItem extends StatelessWidget {
   final dynamic seriesItem;

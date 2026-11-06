@@ -1,8 +1,8 @@
-import 'package:PiliPalaX/utils/extension.dart';
+import 'package:pilipalaz/utils/extension.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:PiliPalaX/http/video.dart';
-import 'package:PiliPalaX/models/model_hot_video_item.dart';
+import 'package:pilipalaz/http/video.dart';
+import 'package:pilipalaz/models/model_hot_video_item.dart';
 
 class ZoneController extends GetxController {
   final ScrollController scrollController = ScrollController();

@@ -1,4 +1,4 @@
-import 'package:PiliPalaX/models/model_owner.dart';
+import 'package:pilipalaz/models/model_owner.dart';
 
 class FavDetailData {
   FavDetailData({

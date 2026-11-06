@@ -1,23 +1,23 @@
-import 'package:PiliPalaX/plugin/pl_player/controller.dart';
+import 'package:pilipalaz/plugin/pl_player/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/constants.dart';
-import 'package:PiliPalaX/http/search.dart';
-import 'package:PiliPalaX/http/video.dart';
-import 'package:PiliPalaX/models/bangumi/info.dart';
-import 'package:PiliPalaX/models/user/fav_folder.dart';
-import 'package:PiliPalaX/pages/video/index.dart';
-import 'package:PiliPalaX/pages/video/reply/index.dart';
-import 'package:PiliPalaX/plugin/pl_player/models/play_repeat.dart';
-import 'package:PiliPalaX/utils/feed_back.dart';
-import 'package:PiliPalaX/utils/id_utils.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/http/constants.dart';
+import 'package:pilipalaz/http/search.dart';
+import 'package:pilipalaz/http/video.dart';
+import 'package:pilipalaz/models/bangumi/info.dart';
+import 'package:pilipalaz/models/user/fav_folder.dart';
+import 'package:pilipalaz/pages/video/index.dart';
+import 'package:pilipalaz/pages/video/reply/index.dart';
+import 'package:pilipalaz/plugin/pl_player/models/play_repeat.dart';
+import 'package:pilipalaz/utils/feed_back.dart';
+import 'package:pilipalaz/utils/id_utils.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:PiliPalaX/services/service_locator.dart';
+import 'package:pilipalaz/services/service_locator.dart';
 
 class BangumiIntroController extends GetxController {
   // 视频bvid

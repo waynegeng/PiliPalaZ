@@ -1,6 +1,6 @@
-import 'package:PiliPalaX/models/video/play/CDN.dart';
-import 'package:PiliPalaX/models/video/play/url.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/models/video/play/CDN.dart';
+import 'package:pilipalaz/models/video/play/url.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 import '../models/live/room_info.dart';
 

@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:PiliPalaX/pages/setting/style_setting.dart';
+import 'package:pilipalaz/pages/setting/style_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/widgets/network_img_layer.dart';
-import 'package:PiliPalaX/models/user/fav_folder.dart';
-import 'package:PiliPalaX/pages/main/index.dart';
-import 'package:PiliPalaX/pages/media/index.dart';
-import 'package:PiliPalaX/utils/utils.dart';
+import 'package:pilipalaz/common/widgets/network_img_layer.dart';
+import 'package:pilipalaz/models/user/fav_folder.dart';
+import 'package:pilipalaz/pages/main/index.dart';
+import 'package:pilipalaz/pages/media/index.dart';
+import 'package:pilipalaz/utils/utils.dart';
 
 import '../../common/constants.dart';
 

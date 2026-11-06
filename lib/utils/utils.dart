@@ -5,12 +5,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -358,16 +357,18 @@ class Utils {
     SmartDialog.dismiss();
     var currentInfo = await PackageInfo.fromPlatform();
     var result = await Request().get(Api.latestApp, extra: {'ua': 'mob'});
+    if (result.data is! List) {
+      SmartDialog.showToast('检查更新失败，请稍后重试');
+      return false;
+    }
     if (result.data.isEmpty) {
-      SmartDialog.showToast('检查更新失败，github接口未返回数据，请检查网络');
+      SmartDialog.showToast('暂无发布版本');
       return false;
     }
     LatestDataModel data = LatestDataModel.fromJson(result.data[0]);
     String buildNumber = currentInfo.buildNumber;
     String remoteVersion = data.tagName!;
-    if (Platform.isAndroid) {
-      buildNumber = buildNumber.substring(0, buildNumber.length - 1);
-    } else if (Platform.isIOS) {
+    if (Platform.isIOS) {
       remoteVersion = remoteVersion.replaceAll('-beta', '');
     }
     bool isUpdate =
@@ -397,7 +398,7 @@ class Utils {
                         onPressed: () {
                           launchUrl(
                             Uri.parse(
-                                "https://github.com/orz12/pilipala/commits/main/"),
+                                "https://github.com/waynegeng/PiliPalaZ/commits/main/"),
                             mode: LaunchMode.externalApplication,
                           );
                         },
@@ -445,26 +446,27 @@ class Utils {
   // 下载适用于当前系统的安装包
   static Future matchVersion(data) async {
     await SmartDialog.dismiss();
-    // 获取设备信息
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    String downloadUrl = 'https://github.com/waynegeng/PiliPalaZ/releases';
     if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      // [arm64-v8a]
-      String abi = androidInfo.supportedAbis.first;
-      late String downloadUrl;
-      if (data.assets.isNotEmpty) {
-        for (var i in data.assets) {
-          if (i.downloadUrl.contains(abi)) {
-            downloadUrl = i.downloadUrl;
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final abi = androidInfo.supportedAbis.isEmpty
+          ? null
+          : androidInfo.supportedAbis.first;
+      final apks = (data.assets ?? [])
+          .where((item) => item.downloadUrl?.endsWith('.apk') == true)
+          .toList();
+      if (apks.isNotEmpty) {
+        downloadUrl = apks.first.downloadUrl;
+        for (final item in apks) {
+          if (abi != null && item.downloadUrl.contains(abi)) {
+            downloadUrl = item.downloadUrl;
+            break;
           }
         }
-        // 应用外下载
-        launchUrl(
-          Uri.parse(downloadUrl),
-          mode: LaunchMode.externalApplication,
-        );
       }
     }
+    await launchUrl(Uri.parse(downloadUrl),
+        mode: LaunchMode.externalApplication);
   }
 
   // 时间戳转时间

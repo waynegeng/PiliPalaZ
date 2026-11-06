@@ -1,11 +1,11 @@
 import 'dart:io';
 
-// import 'package:PiliPalaX/plugin/pl_player/android_window.dart';
-import 'package:PiliPalaX/plugin/pl_player/view.dart';
+// import 'package:pilipalaz/plugin/pl_player/android_window.dart';
+import 'package:pilipalaz/plugin/pl_player/view.dart';
 
 // import 'package:android_window/android_window.dart';
 // import 'package:android_window/main.dart' as android_window;
-import 'package:PiliPalaX/utils/cache_manage.dart';
+import 'package:pilipalaz/utils/cache_manage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,20 +14,20 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/common/widgets/custom_toast.dart';
-import 'package:PiliPalaX/http/init.dart';
-import 'package:PiliPalaX/models/common/color_type.dart';
-import 'package:PiliPalaX/models/common/theme_type.dart';
-import 'package:PiliPalaX/pages/search/index.dart';
-import 'package:PiliPalaX/pages/video/index.dart';
-import 'package:PiliPalaX/router/app_pages.dart';
-import 'package:PiliPalaX/pages/main/view.dart';
-import 'package:PiliPalaX/services/service_locator.dart';
-import 'package:PiliPalaX/utils/app_scheme.dart';
-import 'package:PiliPalaX/utils/data.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/common/widgets/custom_toast.dart';
+import 'package:pilipalaz/http/init.dart';
+import 'package:pilipalaz/models/common/color_type.dart';
+import 'package:pilipalaz/models/common/theme_type.dart';
+import 'package:pilipalaz/pages/search/index.dart';
+import 'package:pilipalaz/pages/video/index.dart';
+import 'package:pilipalaz/router/app_pages.dart';
+import 'package:pilipalaz/pages/main/view.dart';
+import 'package:pilipalaz/services/service_locator.dart';
+import 'package:pilipalaz/utils/app_scheme.dart';
+import 'package:pilipalaz/utils/data.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:media_kit/media_kit.dart'; // Provides [Player], [Media], [Playlist] etc.
-import 'package:PiliPalaX/utils/recommend_filter.dart';
+import 'package:pilipalaz/utils/recommend_filter.dart';
 import 'package:catcher_2/catcher_2.dart';
 import './services/loggeer.dart';
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
@@ -201,7 +201,7 @@ class MyApp extends StatelessWidget {
         // PaintingBinding.instance.imageCache.maximumSizeBytes = 1000 << 20;
         return GetMaterialApp(
           // showSemanticsDebugger: true,
-          title: 'PiliPalaX',
+          title: 'PiliPalaZ',
           theme: _getThemeData(
             colorScheme: lightColorScheme,
             isDynamic: lightDynamic != null && isDynamicColor,

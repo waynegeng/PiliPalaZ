@@ -1,84 +1,63 @@
 <div align="center">
-  <img width="144" height="144" src="assets/images/logo/logo_android.png" alt="PiliPalaX logo">
-  <h1>PiliPalaX Community Fix</h1>
-  <p>面向现有 PiliPalaX 用户的兼容性修复版本</p>
-  <p>
-    <a href="https://github.com/shenshiaba/PiliPalaX-Community-Fix/releases/latest"><img src="https://img.shields.io/github/v/release/shenshiaba/PiliPalaX-Community-Fix?label=release" alt="Release"></a>
-    <img src="https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white" alt="Android">
-    <img src="https://img.shields.io/badge/license-GPLv3-blue" alt="GPLv3">
-  </p>
+  <img width="144" height="144" src="assets/images/logo/logo_android.png" alt="PiliPalaZ logo">
+  <h1>PiliPalaZ</h1>
+  <p>基于 Flutter 的 B 站第三方客户端</p>
 </div>
 
-本项目基于 [orz12/PiliPalaX](https://github.com/orz12/PiliPalaX) 进行兼容性修复，重点恢复直播首页和动态页等受接口变化影响的功能。仓库保留完整 Git 历史，并继续遵循 GNU General Public License v3.0。
+由 [waynegeng](https://github.com/waynegeng) 基于 [shenshiaba/PiliPalaX-Community-Fix](https://github.com/shenshiaba/PiliPalaX-Community-Fix) 修改，保留完整 Git 历史与 GPL-3.0 许可证。
 
-## 本 fork 的改动
+## 1.2.0 的改动
 
-本 fork 由 [waynegeng](https://github.com/waynegeng/PiliPalaX-Community-Fix) 基于 [shenshiaba/PiliPalaX-Community-Fix](https://github.com/shenshiaba/PiliPalaX-Community-Fix) 修改：
+- 更名为 PiliPalaZ；Dart 包名 `pilipalaz`，Android/iOS 应用标识 `com.waynegeng.pilipalaz`，版本 `1.2.0+114515`。可与 PiliPalaX 共存，登录与设置独立保存。
+- 动态页“投稿”复用首页的视频卡片和列宽设置，保留封面、标题、作者、时长及接口提供的统计信息，点击直接播放。其它类型仍使用动态卡片。
+- “动态标签页”支持全部、投稿、番剧、专栏、Up 的显示/隐藏、拖动排序、默认标签和恢复默认，至少保留一个标签，保存立即生效。隐藏 Up 同时隐藏 UP 主选择栏并清除筛选。
+- 动态顶栏默认上滑收起、下滑恢复；切换标签、回到顶部会恢复显示，可在动态设置关闭。
+- 设置实际重组为一般设置、播放设置、首页设置、动态设置、账号设置。旧设置值继续使用，旧默认动态标签迁移为稳定标识。
+- 关于、下载和更新检查指向本仓库；没有 Release 时显示“暂无发布版本”。移除 QQ 群、TG 群及问题反馈入口，保留错误日志。
 
-- 全屏播放时，双指向外张开切换为“裁剪”，向内捏合切换为“自动”。每次手势只触发一次，锁定控件时不响应，并沿用视频尺寸设置的保存方式。
-- 修复关闭“全向旋转”后可能残留的横屏锁定；退出播放页时恢复应用方向设置，并取消延迟旋转任务。
-- 在 **设置 → 外观设置** 中增加 **纯净首页**（默认关闭、切换立即生效）。开启后不挂载首页推荐分栏，仅显示居中搜索框；点击原地输入，按键盘搜索/回车或右侧箭头直接进入搜索结果。空白关键词不会提交，返回后保留输入内容。
+保留此前修复：
 
-下文的 Release 下载与原有验证结果属于上游版本，不包含本 fork 的这些改动。新增回归测试位于 `test/`，使用 Flutter 3.24.4 运行 `flutter test --no-pub`。
-
-本 fork 的已签名通用架构 Release APK 可在 [APK 构建记录](https://github.com/waynegeng/PiliPalaX-Community-Fix/actions/runs/42187874808) 的 `PiliPalaX-pure-home-release` Artifact 中下载（GitHub 下载 Artifact 需要登录）。后续可手动运行 `Build installable APK` 工作流，沿用仓库已配置的独立签名。若已安装版本签名不同，请先备份数据再更换安装。
-
-## 修复内容
-
-### 直播首页
-
-- 修复直播首页长期返回 `-352`、无法加载的问题。
-- 恢复直播分区、推荐直播和分页展示。
-- 保留原有页面布局与交互方式。
-
-### 动态页
-
-- 兼容动态接口中布尔字段返回 `0/1` 或字符串的情况。
-- 兼容部分数字字段以字符串形式返回，避免类型转换异常。
-- 解决 `type 'int' is not a subtype of type 'bool?'` 等解析错误。
-
-### Android 构建
-
-- 调整 Android 构建配置以适配当前工具链。
-- 使用 Flutter 3.24.4、Dart 3.5.4 和 Java 21 完成 Release 构建。
-- 完成 Flutter 静态检查及 APK v1/v2 签名验证。
+- 全屏双指张开切换“裁剪”，捏合切换“自动”；锁定时不触发。
+- 退出全屏或播放页面后恢复应用方向设置，取消过期旋转任务。
+- **首页设置 → 首页 → 纯净首页**：首页仅显示居中搜索框，原地输入并回车直达搜索结果，不打开搜索记录页。
+- 上游直播首页及动态接口兼容修复。
 
 ## 下载与安装
 
-前往 [Releases](https://github.com/shenshiaba/PiliPalaX-Community-Fix/releases) 下载 Android APK。
+[本仓库 Releases](https://github.com/waynegeng/PiliPalaZ/releases) · [签名 APK 构建记录](https://github.com/waynegeng/PiliPalaZ/actions/workflows/build-apk.yml)
 
-本仓库发布的 APK 使用独立签名证书，与其他 PiliPalaX 发行版本的签名可能不同。若 Android 提示签名不一致，请先备份应用数据，再卸载原版本后安装。
+若尚未建立 Release，可从成功构建的 `PiliPalaZ-release` Artifact 下载通用架构 `app-release.apk`（GitHub Artifact 下载需要登录）。安装 PiliPalaZ 无需卸载 PiliPalaX；首次安装需重新登录并配置设置。
+
+## 设置位置
+
+- **一般设置**：主题（颜色、深浅、字号、导航外观、横屏适配、图片质量、提示、帧率）；其他（启动页、震动、代理、缓存、更新、日志、开发人员选项、关于）。
+- **播放设置**：播放器（手势、全屏、弹幕、字幕、后台播放、简介、评论、AI 总结、快速收藏）；音视频（画质、音质、解码、缓冲、输出）。
+- **首页设置**：首页（纯净首页、标签、背景、列宽、顶底栏、搜索）；推荐（来源、刷新保留、过滤）。
+- **动态设置**：标签/默认标签、顶栏收起、UP 栏位置、全部关注 UP、未读标记、其它动态瀑布流。
+- **账号设置**：隐私及退出登录。
 
 ## 构建
 
-已验证环境：
-
-- Flutter 3.24.4
-- Dart 3.5.4
-- Java 21
-- Android SDK 34
-- Android NDK 27.0.12077973
+使用 Flutter **3.24.4** / Dart **3.5.4**、Java **21**、Android SDK **34**、Build Tools **34.0.0**、NDK **27.0.12077973**。
 
 ```bash
-export PUB_HOSTED_URL=https://pub.flutter-io.cn
-export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 flutter pub get --enforce-lockfile
+flutter test --no-pub
 flutter build apk --release --no-pub
 ```
 
-仓库使用锁定依赖。Release 构建需配置自己的 Android 签名密钥，请勿提交签名文件、密码或 `key.properties`。
+锁文件使用 `pub.flutter-io.cn`。在访问 pub.dev 的环境中，可将锁文件域名替换为 `https://pub.dev` 后保留 `--enforce-lockfile` 安装；GitHub 构建工作流已自动处理镜像及 Maven 仓库。
 
-## 验证结果
+Release 签名通过环境变量 `KEYSTORE`、`KEYSTORE_PASSWORD`、`KEY_ALIAS`、`KEY_PASSWORD` 提供。不要提交密钥与密码。手动运行 **Build installable APK** 会使用仓库 `PILIPALA_ANDROID_*` 签名 secrets，执行回归测试、构建、签名检查及 SHA-256 校验。沿用本 fork 原签名，应用 ID 独立。旧的多平台 Release 工作流改为手动触发。
 
-- Android Release APK 构建通过。
-- APK v1/v2 签名验证通过。
-- Flutter 静态检查未发现编译级错误。
-- 直播首页和动态页修复已完成设备验证。
+验证范围与设备验收步骤见 [test/README.md](test/README.md)。本次未连接真机；自动测试和 APK 检查不代表已经验证原生播放、旋转及共存安装。
 
 ## 来源与许可证
 
-- 上游项目：[guozhigq/pilipala](https://github.com/guozhigq/pilipala)
-- 直接来源：[orz12/PiliPalaX](https://github.com/orz12/PiliPalaX)
-- 本仓库维护者：[@shenshiaba](https://github.com/shenshiaba)
+感谢所有上游作者与贡献者：
 
-本项目采用 [GNU General Public License v3.0](LICENSE)。分发修改版本或 APK 时，请同时提供对应源代码、保留许可证与作者署名，并标明修改内容。
+- [guozhigq/pilipala](https://github.com/guozhigq/pilipala)
+- [orz12/PiliPalaX](https://github.com/orz12/PiliPalaX)
+- [shenshiaba/PiliPalaX-Community-Fix](https://github.com/shenshiaba/PiliPalaX-Community-Fix)
+
+本项目采用 [GNU General Public License v3.0](LICENSE)。分发修改版本或 APK 时，请同时提供对应源代码、保留许可证与作者署名，并标明修改内容。本项目与哔哩哔哩官方无隶属关系。

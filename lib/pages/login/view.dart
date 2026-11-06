@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:PiliPalaX/common/constants.dart';
+import 'package:pilipalaz/common/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:PiliPalaX/common/widgets/spring_physics.dart';
+import 'package:pilipalaz/common/widgets/spring_physics.dart';
 
 import 'controller.dart';
 
@@ -69,13 +69,13 @@ class _LoginPageState extends State<LoginPage> {
                 SmartDialog.dismiss();
                 SmartDialog.showLoading(msg: '正在保存至图库');
                 String picName =
-                    "PiliPalaX_loginQRCode_${DateTime.now().toString().replaceAll(' ', '_').replaceAll(':', '-').split('.').first}";
+                    "PiliPalaZ_loginQRCode_${DateTime.now().toString().replaceAll(' ', '_').replaceAll(':', '-').split('.').first}";
                 final SaveResult result = await SaverGallery.saveImage(
                   Uint8List.fromList(pngBytes),
                   fileName: picName,
                   extension: 'png',
-                  // 保存到 PiliPalaX文件夹
-                  androidRelativePath: "Pictures/PiliPalaX",
+                  // 保存到 PiliPalaZ文件夹
+                  androidRelativePath: "Pictures/PiliPalaZ",
                   skipIfExists: false,
                 );
                 SmartDialog.dismiss();
@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
             )),
         Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('请务必在 PiliPalaX 开源仓库等可信渠道下载安装。',
+            child: Text('请务必在 PiliPalaZ 开源仓库等可信渠道下载安装。',
                 style: Theme.of(context).textTheme.labelSmall!.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -294,7 +294,7 @@ class _LoginPageState extends State<LoginPage> {
                 '根据 bilibili 官方登录接口规范，密码将在本地加盐、加密后传输。\n'
                 '盐与公钥均由官方提供；以 RSA/ECB/PKCS1Padding 方式加密。\n'
                 '账号密码仅用于该登录接口，不予保存；本地仅存储登录凭证。\n'
-                '请务必在 PiliPalaX 开源仓库等可信渠道下载安装。',
+                '请务必在 PiliPalaZ 开源仓库等可信渠道下载安装。',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelSmall!.copyWith(
                     color: Theme.of(context)
@@ -430,7 +430,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Text(
                 '手机号仅用于 bilibili 官方发送验证码与登录接口，不予保存；\n'
                 '本地仅存储登录凭证。\n'
-                '请务必在 PiliPalaX 开源仓库等可信渠道下载安装。',
+                '请务必在 PiliPalaZ 开源仓库等可信渠道下载安装。',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelSmall!.copyWith(
                     color: Theme.of(context)

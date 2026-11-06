@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:PiliPalaX/pages/home/controller.dart';
-import 'package:PiliPalaX/pages/home/view.dart';
-import 'package:PiliPalaX/pages/home/widgets/pure_home_search.dart';
-import 'package:PiliPalaX/pages/rcmd/controller.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/pages/home/controller.dart';
+import 'package:pilipalaz/pages/home/view.dart';
+import 'package:pilipalaz/pages/home/widgets/pure_home_search.dart';
+import 'package:pilipalaz/pages/rcmd/controller.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';

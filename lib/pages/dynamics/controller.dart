@@ -1,23 +1,25 @@
+import '../../models/common/dynamic_tab_config.dart';
+import 'tab/view.dart';
+import 'tab/controller.dart';
 // ignore_for_file: avoid_print
 
-import 'package:PiliPalaX/http/follow.dart';
-import 'package:PiliPalaX/utils/extension.dart';
+import 'package:pilipalaz/http/follow.dart';
+import 'package:pilipalaz/utils/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/dynamics.dart';
-import 'package:PiliPalaX/http/search.dart';
-import 'package:PiliPalaX/models/bangumi/info.dart';
-import 'package:PiliPalaX/models/common/dynamics_type.dart';
-import 'package:PiliPalaX/models/common/search_type.dart';
-import 'package:PiliPalaX/models/dynamics/result.dart';
-import 'package:PiliPalaX/models/dynamics/up.dart';
-import 'package:PiliPalaX/models/live/item.dart';
-import 'package:PiliPalaX/utils/feed_back.dart';
-import 'package:PiliPalaX/utils/id_utils.dart';
-import 'package:PiliPalaX/utils/storage.dart';
-import 'package:PiliPalaX/utils/utils.dart';
+import 'package:pilipalaz/http/dynamics.dart';
+import 'package:pilipalaz/http/search.dart';
+import 'package:pilipalaz/models/bangumi/info.dart';
+import 'package:pilipalaz/models/common/search_type.dart';
+import 'package:pilipalaz/models/dynamics/result.dart';
+import 'package:pilipalaz/models/dynamics/up.dart';
+import 'package:pilipalaz/models/live/item.dart';
+import 'package:pilipalaz/utils/feed_back.dart';
+import 'package:pilipalaz/utils/id_utils.dart';
+import 'package:pilipalaz/utils/storage.dart';
+import 'package:pilipalaz/utils/utils.dart';
 
 import '../../models/follow/result.dart';
 
@@ -50,14 +52,57 @@ class DynamicsController extends GetxController
     userLogin.value = userInfo != null;
     super.onInit();
 
+    applyTabConfig(initial: true);
+  }
+
+  List<String> visibleTabs = [];
+  final RxInt tabRevision = 0.obs;
+  final RxBool headerVisible = true.obs;
+  String get currentTab => visibleTabs[tabController.index];
+  bool get showUpPanel => visibleTabs.contains('up');
+
+  void applyTabConfig({bool initial = false}) {
+    final previous = initial ? null : currentTab;
+    final ids =
+        DynamicTabConfig.normalize(setting.get(SettingBoxKey.dynamicTabs));
+    final defaultId = DynamicTabConfig.defaultId(
+        setting.get(SettingBoxKey.defaultDynamicTab),
+        setting.get(SettingBoxKey.defaultDynamicType),
+        ids);
+    setting.put(SettingBoxKey.defaultDynamicTab, defaultId);
+    final selected = initial
+        ? defaultId
+        : ids.contains(previous)
+            ? previous!
+            : ids.first;
+    final oldController = initial ? null : tabController;
+    visibleTabs = ids;
+    if (!showUpPanel) mid.value = -1;
     tabController = TabController(
-        length: tabsConfig.length,
-        vsync: this,
-        initialIndex:
-            setting.get(SettingBoxKey.defaultDynamicType, defaultValue: 0));
-    tabsPageList = tabsConfig.map((e) {
-      return e['page'] as Widget;
-    }).toList();
+        length: ids.length, vsync: this, initialIndex: ids.indexOf(selected));
+    tabController.addListener(() {
+      headerVisible.value = true;
+    });
+    tabsPageList = ids
+        .map((id) => DynamicsTabPage(key: ValueKey(id), dynamicsType: id))
+        .toList();
+    headerVisible.value = true;
+    tabRevision.value++;
+    if (oldController != null)
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => oldController.dispose());
+  }
+
+  DynamicsTabController? get activeController =>
+      Get.isRegistered<DynamicsTabController>(tag: currentTab)
+          ? Get.find<DynamicsTabController>(tag: currentTab)
+          : null;
+
+  @override
+  void onClose() {
+    tabController.dispose();
+    scrollController.dispose();
+    super.onClose();
   }
 
   void refreshNotifier() {
@@ -295,26 +340,31 @@ class DynamicsController extends GetxController
   }
 
   onSelectUp(mid) async {
+    if (!showUpPanel) return;
     if (mid == this.mid.value) {
       this.mid.refresh();
       return;
     }
     this.mid.value = mid;
-    tabController.index = (mid == -1 ? 0 : 4);
+    tabController.index = mid == -1
+        ? (visibleTabs.contains('all') ? visibleTabs.indexOf('all') : 0)
+        : visibleTabs.indexOf('up');
+    headerVisible.value = true;
   }
 
   onRefresh() async {
     print('onRefresh');
-    print(tabsConfig[tabController.index]['ctr']);
+
     await Future.wait(<Future>[
       queryFollowUp(),
-      tabsConfig[tabController.index]['ctr'].onRefresh()
+      if (activeController != null) activeController!.onRefresh()
     ]);
   }
 
   // 返回顶部并刷新
   void animateToTop() async {
-    tabsConfig[tabController.index]['ctr'].animateToTop();
+    headerVisible.value = true;
+    activeController?.animateToTop();
     scrollController.animToTop();
   }
 }

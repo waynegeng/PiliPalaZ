@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/widgets/network_img_layer.dart';
-import 'package:PiliPalaX/utils/utils.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/common/widgets/network_img_layer.dart';
+import 'package:pilipalaz/utils/utils.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 import '../../../http/search.dart';
 

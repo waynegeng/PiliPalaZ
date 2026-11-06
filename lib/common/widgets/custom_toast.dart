@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 Box<dynamic> setting = GStorage.setting;
 

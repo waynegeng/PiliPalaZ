@@ -1,18 +1,18 @@
+import '../../models/common/dynamic_tab_config.dart';
 import 'dart:async';
 
-import 'package:PiliPalaX/models/common/dynamics_type.dart';
-import 'package:PiliPalaX/models/common/up_panel_position.dart';
+import 'package:pilipalaz/models/common/up_panel_position.dart';
 import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/utils/feed_back.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/utils/feed_back.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 import 'controller.dart';
 import 'widgets/up_panel.dart';
-import 'package:PiliPalaX/common/widgets/spring_physics.dart';
+import 'package:pilipalaz/common/widgets/spring_physics.dart';
 
 class DynamicsPage extends StatefulWidget {
   const DynamicsPage({super.key});
@@ -28,6 +28,8 @@ class _DynamicsPageState extends State<DynamicsPage>
   Box userInfoCache = GStorage.userInfo;
   late ScrollController scrollController;
   late UpPanelPosition upPanelPosition;
+  late Worker _loginWorker;
+  VoidCallback? _upScrollListener;
 
   @override
   bool get wantKeepAlive => true;
@@ -46,7 +48,7 @@ class _DynamicsPageState extends State<DynamicsPage>
     //         .onSelectType(_dynamicsController.tabController.index);
     //   }
     // });
-    _dynamicsController.userLogin.listen((status) {
+    _loginWorker = ever(_dynamicsController.userLogin, (status) {
       if (mounted) {
         setState(() {
           _futureBuilderFutureUp = _dynamicsController.queryFollowUp();
@@ -60,7 +62,7 @@ class _DynamicsPageState extends State<DynamicsPage>
     scrollController = _dynamicsController.scrollController;
     if (GStorage.setting
         .get(SettingBoxKey.dynamicsShowAllFollowedUp, defaultValue: false)) {
-      scrollController.addListener(() {
+      scrollController.addListener(_upScrollListener = () {
         if (scrollController.position.pixels >=
             scrollController.position.maxScrollExtent - 300) {
           EasyThrottle.throttle('following', const Duration(seconds: 1), () {
@@ -78,6 +80,10 @@ class _DynamicsPageState extends State<DynamicsPage>
     // print(StackTrace.current);
     // _dynamicsController.tabController.removeListener(() {});
     // _dynamicsController.tabController.dispose();
+    _loginWorker.dispose();
+    if (_upScrollListener != null)
+      scrollController.removeListener(_upScrollListener!);
+    EasyThrottle.cancel('following');
     super.dispose();
   }
 
@@ -85,96 +91,112 @@ class _DynamicsPageState extends State<DynamicsPage>
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Container(
-          //抽屉模式增加底色
-          color: upPanelPosition.code > 1
-              ? Theme.of(context).colorScheme.surface
-              : Colors.transparent,
-          width: 56,
-          child: FutureBuilder(
-            future: _futureBuilderFutureUp,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.data == null) {
-                  return const SizedBox();
-                }
-                Map data = snapshot.data;
-                if (data['status']) {
-                  return Obx(() => UpPanel(
-                      _dynamicsController.upData.value, scrollController));
-                } else {
-                  return const SizedBox();
-                }
-              } else {
-                return const SizedBox(
-                  width: 56,
-                  child: UpPanelSkeleton(),
-                );
-              }
-            },
-          ),
-        ));
+            //抽屉模式增加底色
+            color: upPanelPosition.code > 1
+                ? Theme.of(context).colorScheme.surface
+                : Colors.transparent,
+            width: 56,
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (_) => true,
+              child: FutureBuilder(
+                future: _futureBuilderFutureUp,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.data == null) {
+                      return const SizedBox();
+                    }
+                    Map data = snapshot.data;
+                    if (data['status']) {
+                      return Obx(() => UpPanel(
+                          _dynamicsController.upData.value, scrollController));
+                    } else {
+                      return const SizedBox();
+                    }
+                  } else {
+                    return const SizedBox(
+                      width: 56,
+                      child: UpPanelSkeleton(),
+                    );
+                  }
+                },
+              ),
+            )));
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          toolbarHeight: 50,
-          elevation: 0,
+    return Obx(() {
+      _dynamicsController.tabRevision.value;
+      return Scaffold(
           backgroundColor: Colors.transparent,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarIconBrightness:
-                Theme.of(context).brightness == Brightness.light
-                    ? Brightness.dark
-                    : Brightness.light,
+          appBar: AppBar(
+            toolbarHeight: _dynamicsController.headerVisible.value ||
+                    !GStorage.setting.get(SettingBoxKey.hideDynamicHeader,
+                        defaultValue: true)
+                ? 50
+                : 0,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarIconBrightness:
+                  Theme.of(context).brightness == Brightness.light
+                      ? Brightness.dark
+                      : Brightness.light,
+            ),
+            title: SizedBox(
+                height: 50,
+                child: TabBar(
+                    controller: _dynamicsController.tabController,
+                    isScrollable: true,
+                    dividerColor: Colors.transparent,
+                    dividerHeight: 0,
+                    tabAlignment: TabAlignment.center,
+                    indicatorColor: Theme.of(context).colorScheme.primary,
+                    labelColor: Theme.of(context).colorScheme.primary,
+                    unselectedLabelColor:
+                        Theme.of(context).colorScheme.onSurface,
+                    labelStyle: TextStyle(
+                      fontSize:
+                          Theme.of(context).textTheme.labelMedium!.fontSize,
+                    ),
+                    tabs: _dynamicsController.visibleTabs
+                        .map((id) => Tab(text: DynamicTabConfig.labels[id]!))
+                        .toList(),
+                    onTap: (index) {
+                      print('index: $index');
+                      feedBack();
+                      _dynamicsController.animateToTop();
+                      // _dynamicsController.tabController
+                      // _dynamicsController.tabController.index = index;
+                      // _dynamicsController.onSelectType(index);
+                      // _
+                    })),
           ),
-          title: SizedBox(
-              height: 50,
-              child: TabBar(
-                  controller: _dynamicsController.tabController,
-                  isScrollable: true,
-                  dividerColor: Colors.transparent,
-                  dividerHeight: 0,
-                  tabAlignment: TabAlignment.center,
-                  indicatorColor: Theme.of(context).colorScheme.primary,
-                  labelColor: Theme.of(context).colorScheme.primary,
-                  unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
-                  labelStyle: TextStyle(
-                    fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
-                  ),
-                  tabs: DynamicsType.values
-                      .map((e) => Tab(text: e.labels))
-                      .toList(),
-                  onTap: (index) {
-                    print('index: $index');
-                    feedBack();
-                    tabsConfig[_dynamicsController.tabController.index]['ctr']
-                        .animateToTop();
-                    // _dynamicsController.tabController
-                    // _dynamicsController.tabController.index = index;
-                    // _dynamicsController.onSelectType(index);
-                    // _
-                  })),
-        ),
-        drawer: upPanelPosition == UpPanelPosition.leftDrawer
-            ? SafeArea(child: upPanelPart())
-            : null,
-        drawerEnableOpenDragGesture: true,
-        endDrawer: upPanelPosition == UpPanelPosition.rightDrawer
-            ? SafeArea(child: upPanelPart())
-            : null,
-        endDrawerEnableOpenDragGesture: true,
-        body: Row(children: [
-          if (upPanelPosition == UpPanelPosition.leftFixed) upPanelPart(),
-          Expanded(
-              child: TabBarView(
-            physics: const CustomTabBarViewScrollPhysics(),
-            controller: _dynamicsController.tabController,
-            children: _dynamicsController.tabsPageList,
-          )),
-          if (upPanelPosition == UpPanelPosition.rightFixed) upPanelPart(),
-        ]));
+          drawer: _dynamicsController.showUpPanel &&
+                  upPanelPosition == UpPanelPosition.leftDrawer
+              ? SafeArea(child: upPanelPart())
+              : null,
+          drawerEnableOpenDragGesture: true,
+          endDrawer: _dynamicsController.showUpPanel &&
+                  upPanelPosition == UpPanelPosition.rightDrawer
+              ? SafeArea(child: upPanelPart())
+              : null,
+          endDrawerEnableOpenDragGesture: true,
+          body: Row(children: [
+            if (_dynamicsController.showUpPanel &&
+                upPanelPosition == UpPanelPosition.leftFixed)
+              upPanelPart(),
+            Expanded(
+                child: TabBarView(
+              physics: const CustomTabBarViewScrollPhysics(),
+              controller: _dynamicsController.tabController,
+              children: _dynamicsController.tabsPageList,
+            )),
+            if (_dynamicsController.showUpPanel &&
+                upPanelPosition == UpPanelPosition.rightFixed)
+              upPanelPart(),
+          ]));
+    });
   }
 }

@@ -1,13 +1,15 @@
+import '../pages/setting/categories.dart';
+import '../pages/setting/pages/dynamic_tabbar_set.dart';
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/pages/msg_feed_top/at_me/view.dart';
-import 'package:PiliPalaX/pages/msg_feed_top/reply_me/view.dart';
-import 'package:PiliPalaX/pages/msg_feed_top/like_me/view.dart';
-import 'package:PiliPalaX/pages/follow_search/view.dart';
-import 'package:PiliPalaX/pages/setting/pages/logs.dart';
+import 'package:pilipalaz/pages/msg_feed_top/at_me/view.dart';
+import 'package:pilipalaz/pages/msg_feed_top/reply_me/view.dart';
+import 'package:pilipalaz/pages/msg_feed_top/like_me/view.dart';
+import 'package:pilipalaz/pages/follow_search/view.dart';
+import 'package:pilipalaz/pages/setting/pages/logs.dart';
 
 import '../pages/about/index.dart';
 import '../pages/blacklist/index.dart';
@@ -39,7 +41,6 @@ import '../pages/rank/view.dart';
 import '../pages/rank/zone/view.dart';
 import '../pages/search/index.dart';
 import '../pages/search_result/index.dart';
-import '../pages/setting/extra_setting.dart';
 import '../pages/setting/index.dart';
 import '../pages/setting/pages/color_select.dart';
 import '../pages/setting/pages/display_mode.dart';
@@ -115,6 +116,30 @@ class Routes {
     // 二级回复
     CustomGetPage(
         name: '/replyReply', page: () => const VideoReplyReplyPanel()),
+    CustomGetPage(
+        name: '/generalSetting',
+        page: () => const SettingsCategoryPage(category: 'general')),
+    CustomGetPage(
+        name: '/playbackSetting',
+        page: () => const SettingsCategoryPage(category: 'playback')),
+    CustomGetPage(
+        name: '/homeSetting',
+        page: () => const SettingsCategoryPage(category: 'home')),
+    CustomGetPage(
+        name: '/dynamicSetting',
+        page: () => const SettingsCategoryPage(category: 'dynamic')),
+    CustomGetPage(
+        name: '/accountSetting',
+        page: () => const SettingsCategoryPage(category: 'account')),
+    CustomGetPage(
+        name: '/homeOptions',
+        page: () => const SettingsCategoryPage(category: 'homeOptions')),
+    CustomGetPage(
+        name: '/otherSetting',
+        page: () => const SettingsCategoryPage(category: 'other')),
+    CustomGetPage(
+        name: '/dynamicTabbarSetting',
+        page: () => const DynamicTabbarSetPage()),
     // 推荐流设置
     CustomGetPage(
         name: '/recommendSetting', page: () => const RecommendSetting()),
@@ -127,11 +152,14 @@ class Routes {
     // 隐私设置
     CustomGetPage(name: '/privacySetting', page: () => const PrivacySetting()),
     // 其它设置
-    CustomGetPage(name: '/extraSetting', page: () => const ExtraSetting()),
+    CustomGetPage(
+        name: '/extraSetting',
+        page: () => const SettingsCategoryPage(category: 'other')),
     //
     CustomGetPage(name: '/blackListPage', page: () => const BlackListPage()),
     CustomGetPage(name: '/colorSetting', page: () => const ColorSelectPage()),
-    CustomGetPage(name: '/gestureSetting', page: () => const GestureSelectPage()),
+    CustomGetPage(
+        name: '/gestureSetting', page: () => const GestureSelectPage()),
     // 开发人员选项
     CustomGetPage(name: '/hiddenSetting', page: () => const HiddenSetting()),
     // 首页tabbar

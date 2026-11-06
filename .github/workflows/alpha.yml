@@ -221,7 +221,7 @@ jobs:
         if: startsWith(matrix.target_platform, 'android')
         uses: actions/upload-artifact@v4
         with:
-          name: PiliPalaX-${{ matrix.target_platform }}
+          name: PiliPalaZ-${{ matrix.target_platform }}
           path: |
             build/app/outputs/flutter-apk/Pili-*.apk
 
@@ -229,7 +229,7 @@ jobs:
         if: matrix.target_platform == 'iOS'
         uses: actions/upload-artifact@v4
         with: 
-          name: PiliPalaX-iOS
+          name: PiliPalaZ-iOS
           path: |
             build/Pili-*.ipa
 
@@ -252,6 +252,6 @@ jobs:
           api_hash: ${{ secrets.TELEGRAM_API_HASH }}
           large_file: true
           method: sendFile
-          path: PiliPalaX-*/*
+          path: PiliPalaZ-*/*
           parse_mode: HTML
           context: "<b>v${{ needs.prepare_publish_info.outputs.new_version }}:</b>\n${{ fromJson(needs.prepare_publish_info.outputs.included_commits) }}"      

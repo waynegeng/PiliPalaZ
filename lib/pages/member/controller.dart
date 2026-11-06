@@ -1,22 +1,22 @@
 import 'dart:convert';
-import 'package:PiliPalaX/http/constants.dart';
-import 'package:PiliPalaX/http/init.dart';
+import 'package:pilipalaz/http/constants.dart';
+import 'package:pilipalaz/http/init.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/member.dart';
-import 'package:PiliPalaX/http/user.dart';
-import 'package:PiliPalaX/http/video.dart';
-import 'package:PiliPalaX/models/member/archive.dart';
-import 'package:PiliPalaX/models/member/coin.dart';
-import 'package:PiliPalaX/models/member/info.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/http/member.dart';
+import 'package:pilipalaz/http/user.dart';
+import 'package:pilipalaz/http/video.dart';
+import 'package:pilipalaz/models/member/archive.dart';
+import 'package:pilipalaz/models/member/coin.dart';
+import 'package:pilipalaz/models/member/info.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as html_parser;
 
-import 'package:PiliPalaX/pages/video/introduction/widgets/group_panel.dart';
+import 'package:pilipalaz/pages/video/introduction/widgets/group_panel.dart';
 
 import '../../common/widgets/my_dialog.dart';
 

@@ -63,7 +63,7 @@ jobs:
           sha256sum build/app/outputs/flutter-apk/app-release.apk > build/app/outputs/flutter-apk/SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
-          name: PiliPalaX-pure-home-release
+          name: PiliPalaZ-release
           path: |
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/flutter-apk/package-info.txt

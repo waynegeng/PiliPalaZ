@@ -66,17 +66,16 @@ class VideoCardV extends StatelessWidget {
         }
         break;
       case 'av':
-        print("currentRoute: ${Get.currentRoute}");
-        String bvid = videoItem.bvid ?? IdUtils.av2bv(videoItem.aid);
-        Get.toNamed(
-          '/video?bvid=$bvid&cid=${videoItem.cid}',
-          arguments: {
-            // 'videoItem': videoItem,
+        try {
+          final bvid = videoItem.bvid ?? IdUtils.av2bv(videoItem.aid);
+          final cid = videoItem.cid ?? await SearchHttp.ab2c(bvid: bvid);
+          Get.toNamed('/video?bvid=$bvid&cid=$cid', arguments: {
             'pic': videoItem.pic,
             'heroTag': heroTag,
-          },
-          // preventDuplicates: false,
-        );
+          });
+        } catch (_) {
+          SmartDialog.showToast('获取视频失败，请稍后重试');
+        }
         break;
       // 动态
       case 'picture':
@@ -138,7 +137,9 @@ class VideoCardV extends StatelessWidget {
   Widget build(BuildContext context) {
     String heroTag = Utils.makeHeroTag(videoItem.id);
     List<VideoCustomAction> actions =
-        VideoCustomActions(videoItem, context).actions;
+        videoItem.owner?.mid != null && videoItem.owner.mid > 0
+            ? VideoCustomActions(videoItem, context).actions
+            : [];
     return Stack(children: [
       Semantics(
         label: Utils.videoItemSemantics(videoItem),
@@ -205,7 +206,7 @@ class VideoCardV extends StatelessWidget {
           ),
         ),
       ),
-      if (videoItem.goto == 'av')
+      if (videoItem.goto == 'av' && actions.isNotEmpty)
         Positioned(
             right: -5,
             bottom: -2,
@@ -322,13 +323,14 @@ class VideoStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        StatView(
-          theme: 'gray',
-          view: videoItem.stat.view,
-          goto: videoItem.goto,
-        ),
+        if (videoItem.stat.view != null)
+          StatView(
+            theme: 'gray',
+            view: videoItem.stat.view,
+            goto: videoItem.goto,
+          ),
         const SizedBox(width: 6),
-        if (videoItem.goto != 'picture')
+        if (videoItem.goto != 'picture' && videoItem.stat.danmu != null)
           StatDanMu(
             theme: 'gray',
             danmu: videoItem.stat.danmu,

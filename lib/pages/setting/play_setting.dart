@@ -1,18 +1,20 @@
+import 'style_setting.dart';
+import 'extra_setting.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/pages/setting/widgets/select_dialog.dart';
-import 'package:PiliPalaX/plugin/pl_player/index.dart';
-import 'package:PiliPalaX/services/service_locator.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/pages/setting/widgets/select_dialog.dart';
+import 'package:pilipalaz/plugin/pl_player/index.dart';
+import 'package:pilipalaz/services/service_locator.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'package:PiliPalaX/plugin/pl_player/models/player_middle_gesture.dart';
-import 'package:PiliPalaX/plugin/pl_player/models/player_gesture_action.dart';
-import 'package:PiliPalaX/models/video/play/subtitle.dart';
+import 'package:pilipalaz/plugin/pl_player/models/player_middle_gesture.dart';
+import 'package:pilipalaz/plugin/pl_player/models/player_gesture_action.dart';
+import 'package:pilipalaz/models/video/play/subtitle.dart';
 import 'widgets/switch_item.dart';
 
 class PlaySetting extends StatefulWidget {
@@ -66,6 +68,8 @@ class _PlaySettingState extends State<PlaySetting> {
       ),
       body: ListView(
         children: [
+          const ExtraSetting(section: 'player', embedded: true),
+          const StyleSetting(section: 'player', embedded: true),
           SetSwitchItem(
             title: '弹幕开关',
             subTitle: '是否展示弹幕',

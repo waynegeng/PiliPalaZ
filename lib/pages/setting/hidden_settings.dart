@@ -9,7 +9,6 @@ class HiddenSetting extends StatefulWidget {
 }
 
 class _HiddenSettingState extends State<HiddenSetting> {
-
   @override
   void initState() {
     super.initState();

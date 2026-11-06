@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/user.dart';
+import 'package:pilipalaz/http/user.dart';
 
 import 'storage.dart';
 

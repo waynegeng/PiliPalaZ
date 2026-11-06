@@ -1,15 +1,15 @@
-import 'package:PiliPalaX/models/video/ai.dart';
+import 'package:pilipalaz/models/video/ai.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/utils/utils.dart';
+import 'package:pilipalaz/utils/utils.dart';
 
-import 'package:PiliPalaX/pages/rank/zone/view.dart';
+import 'package:pilipalaz/pages/rank/zone/view.dart';
 
 import '../../../../http/video.dart';
 import '../../widgets/ai_detail.dart';
-import 'package:PiliPalaX/common/widgets/my_dialog.dart';
+import 'package:pilipalaz/common/widgets/my_dialog.dart';
 
 class IntroDetail extends StatelessWidget {
   const IntroDetail({

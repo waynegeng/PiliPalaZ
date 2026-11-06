@@ -1,15 +1,6 @@
-name: PiliPalaX Release
+name: PiliPalaZ Release
 on:
-  push:
-    branches:
-      - 'main'
-    paths-ignore:
-      - '**.md'
-      - '**.txt'
-      - '.github/**'
-      - '.vscode/**'
-      - '.idea/**'
-      - '!.github/workflows/release.yml'
+  workflow_dispatch:
 jobs:
   build_matrix:
     name: Build Release (${{ matrix.target_platform }})
@@ -127,14 +118,14 @@ jobs:
         if : startsWith(matrix.target_platform, 'android')
         uses: actions/upload-artifact@v4
         with:
-          name: PiliPalaX-${{ matrix.target_platform }}
+          name: PiliPalaZ-${{ matrix.target_platform }}
           path: build/app/outputs/flutter-apk/Pili-*.apk
 
       - name: 上传至Artifacts (iOS)
         if: matrix.target_platform == 'iOS'
         uses: actions/upload-artifact@v4
         with:
-          name: PiliPalaX-iOS
+          name: PiliPalaZ-iOS
           path: build/Pili-*.ipa
 
   upload:
@@ -150,7 +141,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: PiliPalaX-*/*
+          artifacts: PiliPalaZ-*/*
           prerelease: ${{ contains(needs.build_matrix.outputs.new_version, 'beta') }}
           tag: ${{ needs.build_matrix.outputs.new_version }}
           allowUpdates: true

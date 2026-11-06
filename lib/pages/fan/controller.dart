@@ -1,9 +1,9 @@
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/fan.dart';
-import 'package:PiliPalaX/models/fans/result.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/http/fan.dart';
+import 'package:pilipalaz/models/fans/result.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 class FansController extends GetxController {
   Box userInfoCache = GStorage.userInfo;

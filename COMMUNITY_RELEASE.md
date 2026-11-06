@@ -1,18 +1,12 @@
-# PiliPalaX Community Fix 2026.07.14
+# PiliPalaZ 1.2.0+114515
 
-本版本针对 PiliPalaX 当前接口兼容问题提供修复，并完成 Android Release 构建与验证。
+独立应用标识 `com.waynegeng.pilipalaz`，支持与 PiliPalaX 共存。使用本 fork 既有签名密钥。
 
-## 修复内容
+本版完成更名、投稿视频卡片、动态标签编辑、动态顶栏收起及五类设置重组，保留纯净首页和全屏播放修复。详情见 [README](README.md)。
 
-- 修复直播首页返回 `-352`、无法加载的问题。
-- 修复动态接口字段类型变化导致的页面解析错误。
-- 调整 Android 构建配置以兼容 Flutter 3.24.4 / Java 21 工具链。
+- [源码](https://github.com/waynegeng/PiliPalaZ)
+- [签名 APK 构建](https://github.com/waynegeng/PiliPalaZ/actions/workflows/build-apk.yml)
+- [Release 下载](https://github.com/waynegeng/PiliPalaZ/releases)
+- [自动测试和设备验收说明](test/README.md)
 
-## 验证结果
-
-- Android Release APK 构建通过。
-- APK v1/v2 签名验证通过。
-- Flutter 静态检查未发现编译级错误。
-- 直播首页与动态页修复已完成设备验证。
-
-安装方式、构建环境、来源与许可证信息请参阅 [README](README.md)。
+尚未连接设备进行本版安装、播放、旋转验收；上游历史设备验证不适用于本次修改。

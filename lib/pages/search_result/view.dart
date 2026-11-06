@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/models/common/search_type.dart';
-import 'package:PiliPalaX/pages/search_panel/index.dart';
+import 'package:pilipalaz/models/common/search_type.dart';
+import 'package:pilipalaz/pages/search_panel/index.dart';
 import 'controller.dart';
 
 class SearchResultPage extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/constants.dart';
-import 'package:PiliPalaX/common/widgets/badge.dart';
-import 'package:PiliPalaX/models/member/seasons.dart';
+import 'package:pilipalaz/common/constants.dart';
+import 'package:pilipalaz/common/widgets/badge.dart';
+import 'package:pilipalaz/models/member/seasons.dart';
 
 import '../../../common/widgets/network_img_layer.dart';
 import '../../../utils/grid.dart';

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:PiliPalaX/models/model_owner.dart';
-import 'package:PiliPalaX/models/search/hot.dart';
-import 'package:PiliPalaX/models/user/info.dart';
+import 'package:pilipalaz/models/model_owner.dart';
+import 'package:pilipalaz/models/search/hot.dart';
+import 'package:pilipalaz/models/user/info.dart';
 import 'global_data.dart';
 
 class GStorage {
@@ -209,6 +209,9 @@ class SettingBoxKey {
 
   /// 外观
   static const String pureHome = 'pureHome';
+  static const String dynamicTabs = 'dynamicTabs';
+  static const String defaultDynamicTab = 'defaultDynamicTab';
+  static const String hideDynamicHeader = 'hideDynamicHeader';
   static const String themeMode = 'themeMode',
       defaultTextScale = 'textScale',
       dynamicColor = 'dynamicColor', // bool

@@ -36,7 +36,7 @@ def _keyPassword = System.getenv("KEY_PASSWORD") ?: keystoreProperties["keyPassw
 android {
     compileSdkVersion 34
 
-    namespace 'com.orz12.PiliPalaX'
+    namespace 'com.waynegeng.pilipalaz'
     // ndkVersion flutter.ndkVersion
     ndkVersion = "27.0.12077973"
 
@@ -55,7 +55,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.orz12.PiliPalaX"
+        applicationId "com.waynegeng.pilipalaz"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         targetSdkVersion flutter.targetSdkVersion
@@ -85,7 +85,7 @@ android {
             signingConfig signingConfigs.release
         }
         debug {
-            //applicationId "com.orz12.PiliPalaX.debug"
+            //applicationId "com.waynegeng.pilipalaz.debug"
             applicationIdSuffix ".debug"
         }
     }

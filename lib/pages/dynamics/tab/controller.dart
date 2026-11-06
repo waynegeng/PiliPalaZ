@@ -1,4 +1,4 @@
-import 'package:PiliPalaX/utils/extension.dart';
+import 'package:pilipalaz/utils/extension.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +35,7 @@ class DynamicsTabController extends GetxController {
       offset: offset,
       mid: dynamicsType == "up" ? mid : -1,
     );
+    if (isClosed) return res;
     isLoadingMore.value = false;
     if (res['status']) {
       if (type == 'onLoad' && res['data'].items.isEmpty) {
@@ -62,6 +63,12 @@ class DynamicsTabController extends GetxController {
   // 上拉加载
   Future onLoad() async {
     await queryFollowDynamic('onLoad', dynamicsType, mid);
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 
   // 返回顶部并刷新

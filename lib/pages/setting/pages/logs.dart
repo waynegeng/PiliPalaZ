@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:PiliPalaX/common/widgets/no_data.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:pilipalaz/common/widgets/no_data.dart';
 import '../../../services/loggeer.dart';
 
 class LogsPage extends StatefulWidget {
@@ -37,7 +36,7 @@ class _LogsPageState extends State<LogsPage> {
       return item
           .replaceAll(
               '============================== CATCHER 2 LOG ==============================',
-              'PiliPalaX错误日志\n********************')
+              'PiliPalaZ错误日志\n********************')
           .replaceAll('DEVICE INFO', '设备信息')
           .replaceAll('APP INFO', '应用信息')
           .replaceAll('ERROR', '错误信息')
@@ -53,7 +52,7 @@ class _LogsPageState extends State<LogsPage> {
             if (l.startsWith("Crash occurred on")) {
               try {
                 date = DateTime.parse(
-                  l.split("Crash occurred on")[1].trim(),//.split('.')[0],
+                  l.split("Crash occurred on")[1].trim(), //.split('.')[0],
                 );
               } catch (e) {
                 debugPrint(e.toString());
@@ -79,14 +78,6 @@ class _LogsPageState extends State<LogsPage> {
         const SnackBar(content: Text('复制成功')),
       );
     }
-  }
-
-  void feedback() {
-    launchUrl(
-      Uri.parse('https://github.com/orz12/pilipala/issues'),
-      // 系统自带浏览器打开
-      mode: LaunchMode.externalApplication,
-    );
   }
 
   void clearLogsHandle() async {
@@ -116,9 +107,6 @@ class _LogsPageState extends State<LogsPage> {
                 case 'copy':
                   copyLogs();
                   break;
-                case 'feedback':
-                  feedback();
-                  break;
                 case 'clear':
                   clearLogsHandle();
                   break;
@@ -129,10 +117,6 @@ class _LogsPageState extends State<LogsPage> {
               const PopupMenuItem<String>(
                 value: 'copy',
                 child: Text('复制日志'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'feedback',
-                child: Text('错误反馈'),
               ),
               const PopupMenuItem<String>(
                 value: 'clear',

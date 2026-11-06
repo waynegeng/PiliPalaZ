@@ -2,11 +2,11 @@ import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/models/common/color_type.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/models/common/color_type.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 import '../../../models/common/theme_type.dart';
-import 'package:PiliPalaX/pages/setting/widgets/select_dialog.dart';
+import 'package:pilipalaz/pages/setting/widgets/select_dialog.dart';
 import '../controller.dart';
 
 class ColorSelectPage extends StatefulWidget {
@@ -221,13 +221,15 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
                                 border: Border.all(
                                   width: 2,
                                   color: ctr.currentColor.value == index
-                                      ? (ctr.type.value == 1 ? Colors.black : Colors.black38)
+                                      ? (ctr.type.value == 1
+                                          ? Colors.black
+                                          : Colors.black38)
                                       : e['color'].withOpacity(0.8),
                                 ),
                               ),
                               child: AnimatedOpacity(
                                 opacity: ctr.currentColor.value == index
-                                    ? (ctr.type.value == 1? 1 : 0.2)
+                                    ? (ctr.type.value == 1 ? 1 : 0.2)
                                     : 0,
                                 duration: const Duration(milliseconds: 200),
                                 child: const Icon(

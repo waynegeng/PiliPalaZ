@@ -1,8 +1,8 @@
-import 'package:PiliPalaX/utils/app_scheme.dart';
+import 'package:pilipalaz/utils/app_scheme.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/http/member.dart';
-import 'package:PiliPalaX/models/member/archive.dart';
+import 'package:pilipalaz/http/member.dart';
+import 'package:pilipalaz/models/member/archive.dart';
 
 class MemberArchiveController extends GetxController {
   MemberArchiveController({required this.mid});

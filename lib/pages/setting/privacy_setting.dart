@@ -1,9 +1,10 @@
+import 'extra_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/interceptor_anonymity.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/http/interceptor_anonymity.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 import '../../models/user/info.dart';
 import '../mine/controller.dart';
@@ -46,8 +47,9 @@ class _PrivacySettingState extends State<PrivacySetting> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
       ),
-      body: Column(
+      body: ListView(
         children: [
+          const ExtraSetting(section: 'privacy', embedded: true),
           ListTile(
             onTap: () {
               if (!userLogin) {

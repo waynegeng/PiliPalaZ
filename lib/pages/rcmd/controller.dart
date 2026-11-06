@@ -1,12 +1,12 @@
-import 'package:PiliPalaX/utils/extension.dart';
+import 'package:pilipalaz/utils/extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/http/video.dart';
-import 'package:PiliPalaX/models/home/rcmd/result.dart';
-import 'package:PiliPalaX/models/model_rec_video_item.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/http/video.dart';
+import 'package:pilipalaz/models/home/rcmd/result.dart';
+import 'package:pilipalaz/models/model_rec_video_item.dart';
+import 'package:pilipalaz/utils/storage.dart';
 
 class RcmdController extends GetxController {
   final ScrollController scrollController = ScrollController();

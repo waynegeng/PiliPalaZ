@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:PiliPalaX/common/widgets/list_sheet.dart';
+import 'package:pilipalaz/common/widgets/list_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/models/video_detail_res.dart';
-import 'package:PiliPalaX/pages/video/index.dart';
+import 'package:pilipalaz/models/video_detail_res.dart';
+import 'package:pilipalaz/pages/video/index.dart';
 
 import '../../../../../utils/id_utils.dart';
 

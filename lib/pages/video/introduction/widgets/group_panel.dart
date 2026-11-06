@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/widgets/http_error.dart';
-import 'package:PiliPalaX/http/member.dart';
-import 'package:PiliPalaX/models/member/tags.dart';
-import 'package:PiliPalaX/utils/feed_back.dart';
+import 'package:pilipalaz/common/widgets/http_error.dart';
+import 'package:pilipalaz/http/member.dart';
+import 'package:pilipalaz/models/member/tags.dart';
+import 'package:pilipalaz/utils/feed_back.dart';
 
 
 class GroupPanel extends StatefulWidget {

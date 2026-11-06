@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:PiliPalaX/plugin/pl_player/utils/fullscreen.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/plugin/pl_player/utils/fullscreen.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';

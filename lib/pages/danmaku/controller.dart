@@ -1,5 +1,5 @@
-import 'package:PiliPalaX/http/danmaku.dart';
-import 'package:PiliPalaX/models/danmaku/dm.pb.dart';
+import 'package:pilipalaz/http/danmaku.dart';
+import 'package:pilipalaz/models/danmaku/dm.pb.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../utils/storage.dart';

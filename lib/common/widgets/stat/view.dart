@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:PiliPalaX/utils/utils.dart';
+import 'package:pilipalaz/utils/utils.dart';
 
 class StatView extends StatelessWidget {
   final String? theme;

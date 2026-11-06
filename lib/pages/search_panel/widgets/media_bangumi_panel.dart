@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:PiliPalaX/common/constants.dart';
-import 'package:PiliPalaX/common/widgets/badge.dart';
-import 'package:PiliPalaX/common/widgets/network_img_layer.dart';
-import 'package:PiliPalaX/http/search.dart';
-import 'package:PiliPalaX/models/bangumi/info.dart';
-import 'package:PiliPalaX/models/common/search_type.dart';
-import 'package:PiliPalaX/utils/utils.dart';
+import 'package:pilipalaz/common/constants.dart';
+import 'package:pilipalaz/common/widgets/badge.dart';
+import 'package:pilipalaz/common/widgets/network_img_layer.dart';
+import 'package:pilipalaz/http/search.dart';
+import 'package:pilipalaz/models/bangumi/info.dart';
+import 'package:pilipalaz/models/common/search_type.dart';
+import 'package:pilipalaz/utils/utils.dart';
 
 import '../../../utils/grid.dart';
 

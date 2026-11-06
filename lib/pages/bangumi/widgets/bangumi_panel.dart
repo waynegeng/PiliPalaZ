@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:PiliPalaX/models/bangumi/info.dart';
-import 'package:PiliPalaX/pages/video/index.dart';
-import 'package:PiliPalaX/utils/storage.dart';
+import 'package:pilipalaz/models/bangumi/info.dart';
+import 'package:pilipalaz/pages/video/index.dart';
+import 'package:pilipalaz/utils/storage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:PiliPalaX/common/widgets/list_sheet.dart';
+import 'package:pilipalaz/common/widgets/list_sheet.dart';
 
 class BangumiPanel extends StatefulWidget {
   const BangumiPanel({
