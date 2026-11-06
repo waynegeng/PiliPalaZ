@@ -21,6 +21,8 @@
 
 下文的 Release 下载与原有验证结果属于上游版本，不包含本 fork 的这些改动。新增回归测试位于 `test/`，使用 Flutter 3.24.4 运行 `flutter test --no-pub`。
 
+本 fork 的已签名通用架构 Release APK 可在 [APK 构建记录](https://github.com/waynegeng/PiliPalaX-Community-Fix/actions/runs/42187874808) 的 `PiliPalaX-pure-home-release` Artifact 中下载（GitHub 下载 Artifact 需要登录）。后续可手动运行 `Build installable APK` 工作流，沿用仓库已配置的独立签名。若已安装版本签名不同，请先备份数据再更换安装。
+
 ## 修复内容
 
 ### 直播首页

@@ -2,7 +2,7 @@
 
 工具链与上游一致：Flutter 3.24.4 / Dart 3.5.4。
 
-2026-11-06 本地验证结果：13 项测试全部通过；静态检查无 error（全项目仍有 445 条 warning/info）；`flutter build bundle --debug --no-pub` 编译通过。本次没有生成 APK，也没有连接手机进行原生播放和方向切换验收。
+2026-11-06 验证结果：本地 13 项测试全部通过；静态检查无 error（全项目仍有 445 条 warning/info）；`flutter build bundle --debug --no-pub` 编译通过。随后通过 GitHub Actions 完成通用架构 Release APK 构建，云端回归测试通过，APK v1/v2 签名验证通过；[构建记录](https://github.com/waynegeng/PiliPalaX-Community-Fix/actions/runs/42187874808)。尚未连接手机进行原生播放和方向切换验收。
 
 ```sh
 flutter pub get --enforce-lockfile
