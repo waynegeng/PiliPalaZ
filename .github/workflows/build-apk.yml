@@ -1,0 +1,70 @@
+name: Build installable APK
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.4'
+          channel: stable
+          cache: true
+      - name: Prepare Android SDK
+        run: sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;27.0.12077973'
+      - name: Install locked dependencies
+        run: |
+          sed -i 's#https://pub.flutter-io.cn#https://pub.dev#g' pubspec.lock
+          flutter pub get --enforce-lockfile
+      - name: Run regression tests
+        run: flutter test --no-pub
+      - name: Use official Maven repositories on the hosted runner
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          for name in ['android/build.gradle', 'android/settings.gradle']:
+              path = Path(name)
+              source = path.read_text()
+              source = re.sub(r'\s*maven \{ url "https://maven.aliyun.com/[^"\n]+" \}', '', source)
+              source = re.sub(r'\s*maven \{ url "http://download.flutter.io"\s*allowInsecureProtocol = true\s*\}', '', source)
+              path.write_text(source)
+          PY
+      - name: Prepare signing key
+        env:
+          SIGNING_KEY: ${{ secrets.PILIPALA_ANDROID_KEYSTORE }}
+        run: |
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/pilipala-release.jks"
+      - name: Build Release APK
+        env:
+          KEYSTORE: ${{ runner.temp }}/pilipala-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.PILIPALA_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.PILIPALA_ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.PILIPALA_ANDROID_KEY_PASSWORD }}
+        run: flutter build apk --release --no-pub
+      - name: Verify signature and record package details
+        run: |
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs build/app/outputs/flutter-apk/app-release.apk
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging build/app/outputs/flutter-apk/app-release.apk > build/app/outputs/flutter-apk/package-info.txt
+          sha256sum build/app/outputs/flutter-apk/app-release.apk > build/app/outputs/flutter-apk/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PiliPalaX-pure-home-release
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/package-info.txt
+            build/app/outputs/flutter-apk/SHA256SUMS
+          if-no-files-found: error
+      - name: Remove temporary signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/pilipala-release.jks"
