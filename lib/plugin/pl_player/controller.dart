@@ -91,6 +91,7 @@ class PlPlayerController {
   final RxDouble _doubleSpeedStatus = 0.0.obs;
   final Rx<bool> _controlsLock = false.obs;
   final Rx<bool> _isFullScreen = false.obs;
+  int _fullScreenTransition = 0;
   // 默认投稿视频格式
   static Rx<String> _videoType = 'archive'.obs;
 
@@ -1035,6 +1036,7 @@ class PlPlayerController {
 
   // 感觉用这个管理状态也不是很好用
   void disable() async {
+    _fullScreenTransition++;
     if (floatingManager.containsFloating(globalId)) return;
     String top = Get.currentRoute;
     print("top:$top");
@@ -1198,6 +1200,15 @@ class PlPlayerController {
         );
       },
     );
+  }
+
+  /// Pinching uses the same fit state and persistence as the size menu.
+  void setPinchVideoFit(BoxFit fit) {
+    if (_videoFit.value == fit) return;
+    _videoFit.value = fit;
+    _videoFitDesc.value =
+        videoFitType.firstWhere((item) => item['attr'] == fit)['desc'];
+    setVideoFit();
   }
 
   /// 缓存fit
@@ -1497,6 +1508,8 @@ class PlPlayerController {
   // 全屏
   Future<void> triggerFullScreen(
       {bool status = true, bool equivalent = false}) async {
+    if (status == isFullScreen.value) return;
+    final transition = ++_fullScreenTransition;
     stopScreenTimer();
     FullScreenMode mode = FullScreenModeCode.fromCode(
         setting.get(SettingBoxKey.fullScreenMode, defaultValue: 0))!;
@@ -1509,6 +1522,7 @@ class PlPlayerController {
       /// 按照视频宽高比决定全屏方向
       toggleFullScreen(true);
       await Future.delayed(const Duration(milliseconds: 10));
+      if (transition != _fullScreenTransition || !isFullScreen.value) return;
 
       /// 进入全屏
       if (mode == FullScreenMode.none) {
@@ -1531,7 +1545,6 @@ class PlPlayerController {
       // StatusBarControl.setHidden(false, animation: StatusBarAnimation.FADE);
       if (!removeSafeArea) showStatusBar();
       toggleFullScreen(false);
-      await Future.delayed(const Duration(milliseconds: 10));
       if (mode == FullScreenMode.none) {
         return;
       }

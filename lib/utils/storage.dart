@@ -208,6 +208,7 @@ class SettingBoxKey {
       systemProxyPort = 'systemProxyPort';
 
   /// 外观
+  static const String pureHome = 'pureHome';
   static const String themeMode = 'themeMode',
       defaultTextScale = 'textScale',
       dynamicColor = 'dynamicColor', // bool

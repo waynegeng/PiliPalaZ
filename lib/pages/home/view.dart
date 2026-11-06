@@ -4,6 +4,9 @@ import 'package:PiliPalaX/models/common/side_bar_position.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:PiliPalaX/utils/storage.dart';
+import 'widgets/pure_home_search.dart';
 import 'package:PiliPalaX/common/widgets/network_img_layer.dart';
 import 'package:PiliPalaX/utils/feed_back.dart';
 import './controller.dart';
@@ -43,77 +46,86 @@ class _HomePageState extends State<HomePage>
     //         : Brightness.light,
     //   ));
     // }
-    return Scaffold(
-      extendBody: true,
-      // extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        toolbarHeight: 0,
-        elevation: 0,
+    return ValueListenableBuilder(
+      valueListenable:
+          GStorage.setting.listenable(keys: [SettingBoxKey.pureHome]),
+      builder: (context, box, child) => Scaffold(
+        extendBody: true,
+        // extendBodyBehindAppBar: true,
         backgroundColor: Colors.transparent,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarIconBrightness:
-              Theme.of(context).brightness == Brightness.dark
-                  ? Brightness.light
-                  : Brightness.dark,
-        ),
-      ),
-      body: Column(
-        children: [
-          if (_homeController.sideBarPosition == SideBarPosition.none ||
-              ((_homeController.sideBarPosition ==
-                          SideBarPosition.leftHorizontal ||
-                      _homeController.sideBarPosition ==
-                          SideBarPosition.rightHorizontal) &&
-                  MediaQuery.of(context).orientation == Orientation.portrait))
-            CustomAppBar(
-              stream: _homeController.hideSearchBar
-                  ? stream
-                  : StreamController<bool>.broadcast().stream,
-              ctr: _homeController,
-            ),
-          if (_homeController.tabs.length > 1) ...[
-            if (_homeController.enableGradientBg) ...[
-              const CustomTabs(),
-            ] else ...[
-              const SizedBox(height: 4),
-              SizedBox(
-                width: double.infinity,
-                height: 42,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: TabBar(
-                    controller: _homeController.tabController,
-                    tabs: [
-                      for (var i in _homeController.tabs) Tab(text: i['label'])
-                    ],
-                    isScrollable: true,
-                    dividerColor: Colors.transparent,
-                    enableFeedback: true,
-                    splashBorderRadius: BorderRadius.circular(10),
-                    tabAlignment: TabAlignment.center,
-                    onTap: (value) {
-                      feedBack();
-                      if (_homeController.initialIndex.value == value) {
-                        _homeController.tabsCtrList[value]().animateToTop();
-                      }
-                      _homeController.initialIndex.value = value;
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ] else ...[
-            const SizedBox(height: 6),
-          ],
-          Expanded(
-            child: TabBarView(
-              physics: const CustomTabBarViewScrollPhysics(),
-              controller: _homeController.tabController,
-              children: _homeController.tabsPageList,
-            ),
+        appBar: AppBar(
+          toolbarHeight: 0,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarIconBrightness:
+                Theme.of(context).brightness == Brightness.dark
+                    ? Brightness.light
+                    : Brightness.dark,
           ),
-        ],
+        ),
+        body: _homeController.pureHome
+            ? const PureHomeSearch()
+            : Column(
+                children: [
+                  if (_homeController.sideBarPosition == SideBarPosition.none ||
+                      ((_homeController.sideBarPosition ==
+                                  SideBarPosition.leftHorizontal ||
+                              _homeController.sideBarPosition ==
+                                  SideBarPosition.rightHorizontal) &&
+                          MediaQuery.of(context).orientation ==
+                              Orientation.portrait))
+                    CustomAppBar(
+                      stream: _homeController.hideSearchBar
+                          ? stream
+                          : StreamController<bool>.broadcast().stream,
+                      ctr: _homeController,
+                    ),
+                  if (_homeController.tabs.length > 1) ...[
+                    if (_homeController.enableGradientBg) ...[
+                      const CustomTabs(),
+                    ] else ...[
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 42,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: TabBar(
+                            controller: _homeController.tabController,
+                            tabs: [
+                              for (var i in _homeController.tabs)
+                                Tab(text: i['label'])
+                            ],
+                            isScrollable: true,
+                            dividerColor: Colors.transparent,
+                            enableFeedback: true,
+                            splashBorderRadius: BorderRadius.circular(10),
+                            tabAlignment: TabAlignment.center,
+                            onTap: (value) {
+                              feedBack();
+                              if (_homeController.initialIndex.value == value) {
+                                _homeController.tabsCtrList[value]()
+                                    .animateToTop();
+                              }
+                              _homeController.initialIndex.value = value;
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ] else ...[
+                    const SizedBox(height: 6),
+                  ],
+                  Expanded(
+                    child: TabBarView(
+                      physics: const CustomTabBarViewScrollPhysics(),
+                      controller: _homeController.tabController,
+                      children: _homeController.tabsPageList,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

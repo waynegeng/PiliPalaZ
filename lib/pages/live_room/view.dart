@@ -44,6 +44,8 @@ class _LiveRoomPageState extends State<LiveRoomPage> {
   @override
   void dispose() {
     // floating?.dispose();
+    restoreAppOrientation();
+    showStatusBar();
     plPlayerController!.disable();
     super.dispose();
   }
@@ -204,11 +206,12 @@ class _LiveRoomPageState extends State<LiveRoomPage> {
               PopScope(
                 canPop: plPlayerController?.isFullScreen.value != true,
                 onPopInvokedWithResult: (bool didPop, Object? result) {
-                  if (plPlayerController?.isFullScreen.value == true) {
+                  if (!didPop &&
+                      plPlayerController?.isFullScreen.value == true) {
                     plPlayerController!.triggerFullScreen(status: false);
-                  }
-                  if (MediaQuery.of(context).orientation ==
-                      Orientation.landscape) {
+                  } else if (!didPop &&
+                      MediaQuery.of(context).orientation ==
+                          Orientation.landscape) {
                     verticalScreenForTwoSeconds();
                   }
                 },

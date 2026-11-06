@@ -4,7 +4,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:PiliPalaX/services/service_locator.dart';
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:fl_pip/fl_pip.dart';
 // import 'package:fl_pip/fl_pip.dart';
 import 'package:flutter/services.dart';
@@ -325,9 +324,7 @@ class _VideoDetailPageState extends State<VideoDetailPage>
     // floating.dispose();
     // videoDetailController.floating?.dispose();
     videoDetailController.cid.close();
-    if (!horizontalScreen) {
-      AutoOrientation.portraitUpMode();
-    }
+    restoreAppOrientation();
     shutdownTimerService.handleWaitingFinished();
     // _bufferedListener?.cancel();
     if (plPlayerController != null) {
@@ -424,7 +421,11 @@ class _VideoDetailPageState extends State<VideoDetailPage>
     //   }
     // }
     Future.delayed(const Duration(milliseconds: 600), () {
-      AutoOrientation.fullAutoMode();
+      if (mounted &&
+          Get.currentRoute.startsWith('/video') &&
+          plPlayerController?.isFullScreen.value != true) {
+        autoScreen();
+      }
     });
     plPlayerController?.addStatusLister(playerListener);
     if (plPlayerController != null) {
@@ -607,10 +608,10 @@ class _VideoDetailPageState extends State<VideoDetailPage>
         child: PopScope(
           canPop: isFullScreen.value != true,
           onPopInvokedWithResult: (bool didPop, Object? result) {
-            if (isFullScreen.value == true) {
+            if (!didPop && isFullScreen.value == true) {
               plPlayerController!.triggerFullScreen(status: false);
-            }
-            if (MediaQuery.of(context).orientation == Orientation.landscape &&
+            } else if (!didPop &&
+                MediaQuery.of(context).orientation == Orientation.landscape &&
                 !horizontalScreen) {
               verticalScreenForTwoSeconds();
             }

@@ -9,13 +9,16 @@ import 'package:flutter/services.dart';
 import '../../../utils/storage.dart';
 
 Timer? screenTimer;
+int _screenRevision = 0;
 void stopScreenTimer() {
+  _screenRevision++;
   screenTimer?.cancel();
   screenTimer = null;
 }
 
 //横屏
 Future<void> landScape() async {
+  stopScreenTimer();
   dynamic document;
   try {
     if (kIsWeb) {
@@ -36,17 +39,22 @@ Future<void> landScape() async {
 
 //竖屏
 Future<void> verticalScreenForTwoSeconds() async {
+  stopScreenTimer();
+  final revision = _screenRevision;
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+  // A page may have closed (or entered full screen) during the platform call.
+  if (revision != _screenRevision) return;
   screenTimer = Timer(const Duration(seconds: 2), () {
-    autoScreen();
     screenTimer = null;
+    autoScreen();
   });
 }
 
 //竖屏
 Future<void> verticalScreen() async {
+  stopScreenTimer();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
@@ -54,8 +62,11 @@ Future<void> verticalScreen() async {
 
 //全向
 Future<void> autoScreen() async {
+  stopScreenTimer();
   if (!GStorage.setting
       .get(SettingBoxKey.allowRotateScreen, defaultValue: true)) {
+    // Explicitly clear any sensor-landscape lock left by full-screen playback.
+    await verticalScreen();
     return;
   }
   await SystemChrome.setPreferredOrientations([
@@ -66,7 +77,22 @@ Future<void> autoScreen() async {
   ]);
 }
 
+/// Restore the app layout policy when leaving a video/live page.
+Future<void> restoreAppOrientation() async {
+  stopScreenTimer();
+  final horizontal =
+      GStorage.setting.get(SettingBoxKey.horizontalScreen, defaultValue: false);
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    if (horizontal) ...[
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ],
+  ]);
+}
+
 Future<void> fullAutoModeForceSensor() async {
+  stopScreenTimer();
   await AutoOrientation.fullAutoMode(forceSensor: true);
 }
 

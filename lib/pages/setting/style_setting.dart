@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -74,6 +73,13 @@ class _StyleSettingState extends State<StyleSetting> {
       ),
       body: ListView(
         children: [
+          const SetSwitchItem(
+            title: '纯净首页',
+            subTitle: '首页仅显示居中搜索框，输入后直接展示搜索结果',
+            leading: Icon(Icons.search_outlined),
+            setKey: SettingBoxKey.pureHome,
+            defaultVal: false,
+          ),
           SetSwitchItem(
               title: '横屏适配',
               subTitle: '启用横屏布局与逻辑，平板、折叠屏等可开启；建议全屏方向设为【不改变当前方向】',
@@ -81,11 +87,10 @@ class _StyleSettingState extends State<StyleSetting> {
               setKey: SettingBoxKey.horizontalScreen,
               defaultVal: false,
               callFn: (value) {
+                restoreAppOrientation();
                 if (value) {
-                  autoScreen();
                   SmartDialog.showToast('已开启横屏适配');
                 } else {
-                  AutoOrientation.portraitUpMode();
                   SmartDialog.showToast('已关闭横屏适配');
                 }
                 PlPlayerController.updateSettingsIfExist();

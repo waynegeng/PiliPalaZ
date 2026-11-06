@@ -33,6 +33,8 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
   // late bool useSideBar;
   late SideBarPosition sideBarPosition;
 
+  bool get pureHome => setting.get(SettingBoxKey.pureHome, defaultValue: false);
+
   @override
   void onInit() {
     super.onInit();
@@ -41,7 +43,8 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     userFace.value = userInfo != null ? userInfo.face : '';
     hideSearchBar =
         setting.get(SettingBoxKey.hideSearchBar, defaultValue: false);
-    if (setting.get(SettingBoxKey.enableSearchWord, defaultValue: true)) {
+    if (!pureHome &&
+        setting.get(SettingBoxKey.enableSearchWord, defaultValue: true)) {
       searchDefault();
     }
     enableGradientBg =
@@ -55,12 +58,14 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
   }
 
   void onRefresh() {
+    if (pureHome) return;
     int index = tabController.index;
     var ctr = tabsCtrList[index];
     ctr().onRefresh();
   }
 
   void animateToTop() {
+    if (pureHome) return;
     int index = tabController.index;
     var ctr = tabsCtrList[index];
     ctr().animateToTop();

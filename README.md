@@ -11,6 +11,16 @@
 
 本项目基于 [orz12/PiliPalaX](https://github.com/orz12/PiliPalaX) 进行兼容性修复，重点恢复直播首页和动态页等受接口变化影响的功能。仓库保留完整 Git 历史，并继续遵循 GNU General Public License v3.0。
 
+## 本 fork 的改动
+
+本 fork 由 [waynegeng](https://github.com/waynegeng/PiliPalaX-Community-Fix) 基于 [shenshiaba/PiliPalaX-Community-Fix](https://github.com/shenshiaba/PiliPalaX-Community-Fix) 修改：
+
+- 全屏播放时，双指向外张开切换为“裁剪”，向内捏合切换为“自动”。每次手势只触发一次，锁定控件时不响应，并沿用视频尺寸设置的保存方式。
+- 修复关闭“全向旋转”后可能残留的横屏锁定；退出播放页时恢复应用方向设置，并取消延迟旋转任务。
+- 在 **设置 → 外观设置** 中增加 **纯净首页**（默认关闭、切换立即生效）。开启后不挂载首页推荐分栏，仅显示居中搜索框；点击原地输入，按键盘搜索/回车或右侧箭头直接进入搜索结果。空白关键词不会提交，返回后保留输入内容。
+
+下文的 Release 下载与原有验证结果属于上游版本，不包含本 fork 的这些改动。新增回归测试位于 `test/`，使用 Flutter 3.24.4 运行 `flutter test --no-pub`。
+
 ## 修复内容
 
 ### 直播首页
