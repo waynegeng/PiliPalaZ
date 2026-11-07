@@ -51,6 +51,9 @@ class _MainAppState extends State<MainApp>
   }
 
   void setIndex(int value) async {
+    if (value != _mainController.selectedIndex) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     feedBack();
     _mainController.pageController.jumpToPage(value);
     var currentPage = _mainController.pages[value];

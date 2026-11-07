@@ -34,6 +34,7 @@ void main() {
 
   Widget app(Widget home) => GetMaterialApp(
         home: home,
+        navigatorObservers: [PureHomeSearch.routeObserver],
         getPages: [
           GetPage(name: '/search', page: () => const Text('history page')),
           GetPage(
@@ -137,6 +138,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.getCenter(field), position);
     expect(find.byType(HomeUserActions), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets(
+      'returning from video never restores home keyboard; explicit tap still edits',
+      (tester) async {
+    await tester.pumpWidget(app(const Scaffold(body: PureHomeSearch())));
+    final field = find.byType(TextField);
+    await tester.enterText(field, '保留关键词');
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(field);
+      await tester.pumpAndSettle();
+      expect(tester.testTextInput.isVisible, isTrue);
+      // Android Back hides the IME without necessarily clearing field focus.
+      tester.testTextInput.hide();
+      Get.to(() => const Scaffold(body: Text('视频播放页')));
+      await tester.pumpAndSettle();
+      Get.back();
+      await tester.pumpAndSettle();
+      expect(
+          tester
+              .widget<EditableText>(find.byType(EditableText))
+              .focusNode
+              .hasFocus,
+          isFalse);
+      expect(tester.testTextInput.isVisible, isFalse);
+      expect(find.text('保留关键词'), findsOneWidget);
+    }
+    await tester.tap(field);
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isTrue);
     expect(tester.takeException(), isNull);
   });
 }

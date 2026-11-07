@@ -6,22 +6,45 @@ import 'package:get/get.dart';
 class PureHomeSearch extends StatefulWidget {
   const PureHomeSearch({super.key});
 
+  static final routeObserver = RouteObserver<ModalRoute<dynamic>>();
+
   @override
   State<PureHomeSearch> createState() => _PureHomeSearchState();
 }
 
-class _PureHomeSearchState extends State<PureHomeSearch> {
+class _PureHomeSearchState extends State<PureHomeSearch> with RouteAware {
   final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+  ModalRoute<dynamic>? _route;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (_route == route) return;
+    PureHomeSearch.routeObserver.unsubscribe(this);
+    _route = route;
+    if (route != null) PureHomeSearch.routeObserver.subscribe(this, route);
+  }
+
+  @override
+  void didPushNext() {
+    // Clear the route's focus history before another page takes focus, so
+    // popping that page cannot restore the search field and reopen the IME.
+    _focusNode.unfocus();
+  }
 
   void _submit(String value) {
     final keyword = value.trim();
     if (keyword.isEmpty) return;
-    FocusScope.of(context).unfocus();
+    _focusNode.unfocus();
     Get.toNamed('/searchResult', parameters: {'keyword': keyword});
   }
 
   @override
   void dispose() {
+    PureHomeSearch.routeObserver.unsubscribe(this);
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -46,6 +69,7 @@ class _PureHomeSearchState extends State<PureHomeSearch> {
                 constraints: const BoxConstraints(maxWidth: 560),
                 child: TextField(
                   controller: _controller,
+                  focusNode: _focusNode,
                   textInputAction: TextInputAction.search,
                   maxLines: 1,
                   onSubmitted: _submit,

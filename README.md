@@ -6,6 +6,11 @@
 
 由 [waynegeng](https://github.com/waynegeng) 基于 [shenshiaba/PiliPalaX-Community-Fix](https://github.com/shenshiaba/PiliPalaX-Community-Fix) 修改，保留完整 Git 历史与 GPL-3.0 许可证。
 
+## 1.2.3 的改动
+
+- 修复纯净首页搜索框点过后，从播放页返回自动弹出输入法：离开页面或切换主导航时清除焦点，返回后保留关键词，点击搜索框仍可正常输入。
+- 版本 `1.2.3+114518`，沿用应用标识和签名，可覆盖升级。
+
 ## 1.2.2 的改动
 
 - “我的”收藏视频直接复用原收藏夹的横向卡片、列数和间距，移除收藏夹管理入口。

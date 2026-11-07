@@ -1,3 +1,4 @@
+import 'pages/home/widgets/pure_home_search.dart';
 import 'dart:io';
 
 // import 'package:pilipalaz/plugin/pl_player/android_window.dart';
@@ -235,6 +236,7 @@ class MyApp extends StatelessWidget {
             );
           },
           navigatorObservers: [
+            PureHomeSearch.routeObserver,
             VideoDetailPage.routeObserver,
             SearchPage.routeObserver,
           ],
@@ -293,5 +295,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-
 }

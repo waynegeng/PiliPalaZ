@@ -26,7 +26,7 @@ import 'package:pilipalaz/utils/storage.dart';
 class _TestAboutController extends AboutController {
   @override
   Future<void> getCurrentApp() async {
-    currentVersion.value = '1.2.2+114517';
+    currentVersion.value = '1.2.3+114518';
   }
 
   @override
@@ -388,7 +388,7 @@ void main() {
         .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('当前版本'), 400);
-    expect(find.text('1.2.2+114517'), findsOneWidget);
+    expect(find.text('1.2.3+114518'), findsOneWidget);
     expect(find.text('关于'), findsNothing);
     expect(find.byType(Image), findsNothing);
     expect(find.text('最新版本'), findsOneWidget);
