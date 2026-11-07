@@ -1,3 +1,4 @@
+import '../../../utils/grid.dart';
 import 'favorite_actions.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,15 @@ import 'package:pilipalaz/common/widgets/stat/view.dart';
 import 'package:pilipalaz/utils/utils.dart';
 import 'package:pilipalaz/common/widgets/network_img_layer.dart';
 import '../../../common/widgets/badge.dart';
+
+// Keep the folder detail and My page density and columns identical.
+SliverGridDelegate favoriteVideoGridDelegate() =>
+    SliverGridDelegateWithExtentAndRatio(
+        mainAxisSpacing: StyleString.cardSpace,
+        crossAxisSpacing: StyleString.safeSpace,
+        maxCrossAxisExtent: Grid.maxRowWidth * 2,
+        childAspectRatio: StyleString.aspectRatio * 2.4,
+        mainAxisExtent: 0);
 
 // 收藏视频卡片 - 水平布局
 class FavVideoCardH extends StatelessWidget {
@@ -23,10 +33,13 @@ class FavVideoCardH extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int id = videoItem.id;
+    int id = videoItem.id ?? 0;
+    final playable = id > 0 &&
+        videoItem.pic?.isNotEmpty == true &&
+        !['已失效视频', '视频已失效', '视频已删除'].contains(videoItem.title);
     String heroTag = Utils.makeHeroTag(id);
     return InkWell(
-      onTap: () => openFavoriteVideo(videoItem, heroTag),
+      onTap: playable ? () => openFavoriteVideo(videoItem, heroTag) : null,
       child: LayoutBuilder(
         builder: (context, boxConstraints) {
           double width =
@@ -48,17 +61,18 @@ class FavVideoCardH extends StatelessWidget {
                           Hero(
                             tag: heroTag,
                             child: NetworkImgLayer(
-                              src: videoItem.pic,
+                              src: videoItem.pic ?? '',
                               width: maxWidth,
                               height: maxHeight,
                             ),
                           ),
-                          PBadge(
-                            text: Utils.timeFormat(videoItem.duration!),
-                            right: 6.0,
-                            bottom: 6.0,
-                            type: 'gray',
-                          ),
+                          if (videoItem.duration != null)
+                            PBadge(
+                              text: Utils.timeFormat(videoItem.duration!),
+                              right: 6.0,
+                              bottom: 6.0,
+                              type: 'gray',
+                            ),
                           if (videoItem.ogv != null) ...[
                             PBadge(
                               text: videoItem.ogv['type_name'],
@@ -109,7 +123,7 @@ class VideoContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  videoItem.title,
+                  videoItem.title ?? '视频暂不可用',
                   textAlign: TextAlign.start,
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
@@ -120,7 +134,7 @@ class VideoContent extends StatelessWidget {
                 ),
                 if (videoItem.ogv != null) ...[
                   Text(
-                    videoItem.intro,
+                    videoItem.intro ?? '',
                     style: TextStyle(
                       fontSize:
                           Theme.of(context).textTheme.labelMedium!.fontSize,
@@ -130,7 +144,9 @@ class VideoContent extends StatelessWidget {
                 ],
                 const Spacer(),
                 Text(
-                  "${Utils.dateFormat(videoItem.pubdate!, formatType: 'day')} ${videoItem.owner.name}",
+                  "${videoItem.pubdate == null ? '' : Utils.dateFormat(videoItem.pubdate!, formatType: 'day')} ${videoItem.owner?.name ?? ''}",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       fontSize:
                           Theme.of(context).textTheme.labelMedium!.fontSize,
@@ -140,13 +156,15 @@ class VideoContent extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 2),
                   child: Row(
                     children: [
-                      StatView(
-                        theme: 'gray',
-                        view: videoItem.cntInfo['play'],
-                      ),
+                      if (videoItem.cntInfo?['play'] != null)
+                        StatView(
+                          theme: 'gray',
+                          view: videoItem.cntInfo['play'],
+                        ),
                       const SizedBox(width: 8),
-                      StatDanMu(
-                          theme: 'gray', danmu: videoItem.cntInfo['danmaku']),
+                      if (videoItem.cntInfo?['danmaku'] != null)
+                        StatDanMu(
+                            theme: 'gray', danmu: videoItem.cntInfo['danmaku']),
                       const Spacer(),
                     ],
                   ),

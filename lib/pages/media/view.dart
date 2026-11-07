@@ -4,7 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import '../main/controller.dart';
 import 'controller.dart';
-import 'favorite_video_tile.dart';
+import '../fav_detail/widget/fav_video_card.dart';
+import '../../common/constants.dart';
 
 class MediaPage extends StatefulWidget {
   const MediaPage({super.key});
@@ -92,9 +93,9 @@ class _MediaPageState extends State<MediaPage>
         buttonHeight = math.max(buttonHeight, painter.height + 60);
         painter.dispose();
       }
-      final headerExtent = buttonHeight * 2 + 100;
+      final headerExtent = buttonHeight * 2 + 266;
       return Scaffold(
-        appBar: AppBar(title: const Text('我的'), centerTitle: false, actions: [
+        appBar: AppBar(automaticallyImplyLeading: false, actions: [
           IconButton(
               tooltip: '设置',
               icon: const Icon(Icons.settings_outlined),
@@ -114,6 +115,13 @@ class _MediaPageState extends State<MediaPage>
                     controller: controller.scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
+                      SliverToBoxAdapter(
+                          child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Image.asset(
+                                  'assets/images/logo/logo_android_2.png',
+                                  height: 150,
+                                  semanticLabel: 'PiliPalaZ'))),
                       SliverPadding(
                           padding: const EdgeInsets.all(16),
                           sliver: SliverGrid(
@@ -158,9 +166,6 @@ class _MediaPageState extends State<MediaPage>
                         title: Text('我的收藏', style: theme.textTheme.titleMedium),
                         leading: Icon(Icons.bookmarks_outlined,
                             color: theme.colorScheme.primary),
-                        trailing: TextButton(
-                            onPressed: () => Get.toNamed('/fav'),
-                            child: const Text('管理')),
                       )),
                       if (!controller.userLogin.value)
                         SliverToBoxAdapter(
@@ -212,17 +217,21 @@ class _MediaPageState extends State<MediaPage>
                                     ),
                                   ))),
                         if (state != null) ...[
-                          SliverList(
-                              delegate:
-                                  SliverChildBuilderDelegate((context, index) {
-                            final video = state.videos[index];
-                            final id = controller.selectedFolderId!;
-                            return FavoriteVideoTile(
-                                key: ValueKey('$id-${video.id}-$index'),
-                                video: video,
-                                onRemove: () =>
-                                    controller.cancelFavorite(id, video.id!));
-                          }, childCount: state.videos.length)),
+                          SliverPadding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: StyleString.safeSpace),
+                              sliver: SliverGrid(
+                                  gridDelegate: favoriteVideoGridDelegate(),
+                                  delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                    final video = state.videos[index];
+                                    final id = controller.selectedFolderId!;
+                                    return FavVideoCardH(
+                                        key: ValueKey('$id-${video.id}-$index'),
+                                        videoItem: video,
+                                        callFn: () => controller.cancelFavorite(
+                                            id, video.id!));
+                                  }, childCount: state.videos.length))),
                           if (state.loading)
                             const SliverToBoxAdapter(
                                 child: Padding(

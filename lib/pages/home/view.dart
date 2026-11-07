@@ -65,7 +65,13 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         body: _homeController.pureHome
-            ? const PureHomeSearch()
+            ? Stack(children: [
+                const Positioned.fill(child: PureHomeSearch()),
+                Positioned(
+                    top: 6,
+                    right: 14,
+                    child: HomeUserActions(ctr: _homeController))
+              ])
             : Column(
                 children: [
                   if (_homeController.sideBarPosition == SideBarPosition.none ||
@@ -184,6 +190,19 @@ class SearchBarAndUser extends StatelessWidget {
       children: [
         SearchBar(ctr: ctr),
         const SizedBox(width: 4),
+        HomeUserActions(ctr: ctr),
+      ],
+    );
+  }
+}
+
+/// Shared message and profile actions for both home modes.
+class HomeUserActions extends StatelessWidget {
+  const HomeUserActions({super.key, required this.ctr});
+  final HomeController ctr;
+  @override
+  Widget build(BuildContext context) =>
+      Row(mainAxisSize: MainAxisSize.min, children: [
         Obx(() => ctr.userLogin.value
             ? ClipRect(
                 child: IconButton(
@@ -228,9 +247,7 @@ class SearchBarAndUser extends StatelessWidget {
                   : DefaultUser(
                       callback: () => ctr.showUserInfoDialog(context)),
             )),
-      ],
-    );
-  }
+      ]);
 }
 
 class UserAndSearchVertical extends StatelessWidget {

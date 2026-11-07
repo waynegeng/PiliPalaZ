@@ -46,26 +46,12 @@ class _AboutPageState extends State<AboutPage> {
     TextStyle subTitleStyle =
         TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.outline);
     final items = <Widget>[
-      if (widget.section == 'about')
-        Column(children: [
-          Image.asset(
-            excludeFromSemantics: true,
-            height: 150,
-            'assets/images/logo/logo_android_2.png',
-          ),
-          Text('PiliPalaZ',
-              textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.titleMedium,
-              semanticsLabel: 'PiliPalaZ 与你一起，发现不一样的世界'),
-          Text(
-            '使用Flutter开发的B站第三方客户端⁺',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.outline, height: 3),
-            semanticsLabel: '使用Flutter开发的B站第三方客户端（带无障碍适配）',
-          ),
-        ]),
-      if (widget.section == 'about')
+      if (widget.section != 'other')
+        const ListTile(
+            leading: Icon(Icons.info_outline),
+            title: Text('PiliPalaZ'),
+            subtitle: Text('使用Flutter开发的B站第三方客户端（带无障碍适配）')),
+      if (widget.section != 'other')
         Obx(
           () => ListTile(
             onTap: () => _aboutController.tapOnVersion(),
@@ -75,7 +61,7 @@ class _AboutPageState extends State<AboutPage> {
                 style: subTitleStyle),
           ),
         ),
-      if (widget.section == 'about')
+      if (widget.section != 'other')
         Obx(
           () => ListTile(
             onTap: () => _aboutController.onUpdate(),
@@ -91,30 +77,30 @@ class _AboutPageState extends State<AboutPage> {
             ),
           ),
         ),
-      if (widget.section == 'about')
+      if (widget.section != 'other')
         Divider(
           thickness: 1,
           height: 30,
           color: Theme.of(context).colorScheme.outlineVariant,
         ),
-      if (widget.section == 'about')
+      if (widget.section != 'other')
         ListTile(
           onTap: () => _aboutController.githubUrl(),
           leading: Icon(MdiIcons.github),
           title: const Text('开源仓库⭐'),
-          trailing: Text(
+          subtitle: Text(
             'Github.com/waynegeng/PiliPalaZ',
             style: subTitleStyle,
           ),
         ),
-      if (widget.section == 'other')
+      if (widget.section != 'about')
         ListTile(
           onTap: () => _aboutController.logs(),
           leading: const Icon(Icons.bug_report),
           title: const Text('错误日志'),
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: outline),
         ),
-      if (widget.section == 'other')
+      if (widget.section != 'about')
         ListTile(
           onTap: () async {
             await CacheManage().clearCacheAll(context);
@@ -124,7 +110,7 @@ class _AboutPageState extends State<AboutPage> {
           title: const Text('清除缓存'),
           trailing: Text('图片及网络缓存 $cacheSize', style: subTitleStyle),
         ),
-      if (widget.section == 'other')
+      if (widget.section != 'about')
         ListTile(
             title: const Text('导入/导出设置'),
             dense: false,
@@ -195,7 +181,7 @@ class _AboutPageState extends State<AboutPage> {
                 },
               );
             }),
-      if (widget.section == 'other')
+      if (widget.section != 'about')
         ListTile(
           title: const Text('重置所有设置'),
           leading: const Icon(Icons.settings_backup_restore),

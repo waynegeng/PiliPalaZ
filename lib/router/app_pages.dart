@@ -11,7 +11,6 @@ import 'package:pilipalaz/pages/msg_feed_top/like_me/view.dart';
 import 'package:pilipalaz/pages/follow_search/view.dart';
 import 'package:pilipalaz/pages/setting/pages/logs.dart';
 
-import '../pages/about/index.dart';
 import '../pages/blacklist/index.dart';
 import '../pages/danmaku_block/index.dart';
 import '../pages/dynamics/detail/index.dart';
@@ -174,7 +173,9 @@ class Routes {
     CustomGetPage(
         name: '/displayModeSetting', page: () => const SetDisplayMode()),
     // 关于
-    CustomGetPage(name: '/about', page: () => const AboutPage()),
+    CustomGetPage(
+        name: '/about',
+        page: () => const SettingsCategoryPage(category: 'general')),
     //
     CustomGetPage(name: '/htmlRender', page: () => const HtmlRenderPage()),
     // 历史记录搜索

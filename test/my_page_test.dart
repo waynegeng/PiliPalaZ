@@ -1,7 +1,9 @@
+import 'package:pilipalaz/pages/about/index.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:pilipalaz/models/model_owner.dart';
 import 'package:pilipalaz/http/init.dart';
 import 'package:pilipalaz/pages/dynamics/view.dart';
-import 'package:pilipalaz/pages/media/favorite_video_tile.dart';
+import 'package:pilipalaz/pages/fav_detail/widget/fav_video_card.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:io';
@@ -20,6 +22,18 @@ import 'package:pilipalaz/pages/dynamics/controller.dart';
 import 'package:pilipalaz/pages/setting/view.dart';
 import 'package:pilipalaz/pages/setting/categories.dart';
 import 'package:pilipalaz/utils/storage.dart';
+
+class _TestAboutController extends AboutController {
+  @override
+  Future<void> getCurrentApp() async {
+    currentVersion.value = '1.2.2+114517';
+  }
+
+  @override
+  Future<void> getRemoteApp() async {
+    isLoading.value = false;
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -231,7 +245,13 @@ void main() {
         page: 1);
     await tester.pumpWidget(GetMaterialApp(
         home: Scaffold(
-            body: FavoriteVideoTile(video: video, onRemove: () async {})),
+            body: Align(
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                    height: 120,
+                    width: 390,
+                    child:
+                        FavVideoCardH(videoItem: video, callFn: () async {})))),
         getPages: [
           GetPage(name: '/video', page: () => const Scaffold(body: Text('播放器')))
         ]));
@@ -278,7 +298,13 @@ void main() {
             {
           'status': true,
           'data': FavDetailData(hasMore: false, medias: [
-            FavDetailItemData(id: 1, title: '收藏视频示例'),
+            FavDetailItemData(
+                id: 1,
+                title: '收藏视频示例',
+                duration: 186,
+                pubdate: 1700000000,
+                owner: Owner(name: '视频作者'),
+                cntInfo: {'play': 12345, 'danmaku': 76}),
             FavDetailItemData(id: 2, title: '已失效视频')
           ])
         },
@@ -288,12 +314,19 @@ void main() {
     final key = GlobalKey();
     await tester.pumpWidget(GetMaterialApp(
         home: RepaintBoundary(key: key, child: const MediaPage())));
+    await tester.runAsync(() => precacheImage(
+        const AssetImage('assets/images/logo/logo_android_2.png'),
+        tester.element(find.byType(MediaPage))));
     await tester.pumpAndSettle();
     expect(tester.getTopLeft(find.text('观看记录')).dy,
         tester.getTopLeft(find.text('我的订阅')).dy);
     expect(tester.getTopLeft(find.text('稍后再看')).dy,
         tester.getTopLeft(find.text('创作中心')).dy);
     expect(find.text('收藏视频示例'), findsOneWidget);
+    expect(find.byType(FavVideoCardH), findsWidgets);
+    expect(find.text('管理'), findsNothing);
+    expect(find.text('我的'), findsNothing);
+    expect(find.bySemanticsLabel('PiliPalaZ'), findsOneWidget);
     await screenshot(tester, key, 'my-light');
     await tester.tap(find.byKey(const ValueKey('folder-2')));
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
@@ -340,5 +373,28 @@ void main() {
     expect(find.text('首页推荐类型'), findsOneWidget);
     expect(find.text('推荐'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+  testWidgets('general settings directly contain former About information',
+      (tester) async {
+    const channel = MethodChannel('plugins.flutter.io/path_provider');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (_) async => temp.path);
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    Get.put<AboutController>(_TestAboutController());
+    await tester.pumpWidget(
+        const GetMaterialApp(home: SettingsCategoryPage(category: 'general')));
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('当前版本'), 400);
+    expect(find.text('1.2.2+114517'), findsOneWidget);
+    expect(find.text('关于'), findsNothing);
+    expect(find.byType(Image), findsNothing);
+    expect(find.text('最新版本'), findsOneWidget);
+    expect(find.text('开源仓库⭐'), findsOneWidget);
+    expect(find.text('错误日志'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
   });
 }

@@ -47,12 +47,11 @@ class SettingsCategoryPage extends StatelessWidget {
                 const StyleSetting(embedded: true),
                 const StyleSetting(section: 'other', embedded: true),
                 const ExtraSetting(embedded: true),
-                const AboutPage(section: 'other', embedded: true),
+                const AboutPage(section: 'all', embedded: true),
                 Obx(() => controller.hiddenSettingUnlocked.value
                     ? link('开发人员选项', '/hiddenSetting',
                         Icons.developer_board_outlined)
                     : const SizedBox.shrink()),
-                link('关于', '/about', Icons.info_outline),
               ],
               if (category == 'playback') ...[
                 const PlaySetting(embedded: true),

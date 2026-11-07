@@ -238,12 +238,7 @@ class _FavDetailPageState extends State<FavDetailPage> {
                     return const SliverToBoxAdapter(child: SizedBox());
                   }
                   return SliverGrid(
-                    gridDelegate: SliverGridDelegateWithExtentAndRatio(
-                        mainAxisSpacing: StyleString.cardSpace,
-                        crossAxisSpacing: StyleString.safeSpace,
-                        maxCrossAxisExtent: Grid.maxRowWidth * 2,
-                        childAspectRatio: StyleString.aspectRatio * 2.4,
-                        mainAxisExtent: 0),
+                    gridDelegate: favoriteVideoGridDelegate(),
                     delegate: SliverChildBuilderDelegate((context, index) {
                       return FavVideoCardH(
                         videoItem: favList[index],

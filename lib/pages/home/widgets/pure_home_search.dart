@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,36 +29,47 @@ class _PureHomeSearchState extends State<PureHomeSearch> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: TextField(
-              controller: _controller,
-              textInputAction: TextInputAction.search,
-              maxLines: 1,
-              onSubmitted: _submit,
-              decoration: InputDecoration(
-                hintText: '搜索',
-                filled: true,
-                fillColor: colors.onSecondaryContainer.withOpacity(0.05),
-                prefixIcon: const Icon(Icons.search_outlined),
-                suffixIcon: IconButton(
-                  tooltip: '搜索',
-                  onPressed: () => _submit(_controller.text),
-                  icon: const Icon(Icons.arrow_forward),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
+    // The viewport stays stable when ancestor Scaffolds resize for the keyboard.
+    final viewport = MediaQuery.sizeOf(context);
+    final top = math.max(64.0,
+        viewport.height * .38 - 28 - MediaQuery.viewPaddingOf(context).top);
+    return Stack(
+      children: [
+        Positioned(
+          top: top,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: TextField(
+                  controller: _controller,
+                  textInputAction: TextInputAction.search,
+                  maxLines: 1,
+                  onSubmitted: _submit,
+                  decoration: InputDecoration(
+                    hintText: '搜索',
+                    filled: true,
+                    fillColor: colors.onSecondaryContainer.withOpacity(0.05),
+                    prefixIcon: const Icon(Icons.search_outlined),
+                    suffixIcon: IconButton(
+                      tooltip: '搜索',
+                      onPressed: () => _submit(_controller.text),
+                      icon: const Icon(Icons.arrow_forward),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        )
+      ],
     );
   }
 }
