@@ -76,7 +76,7 @@ class FavDetailItemData {
     intro = json['intro'];
     page = json['page'];
     duration = json['duration'];
-    owner = Owner.fromJson(json['upper']);
+    owner = json['upper'] == null ? null : Owner.fromJson(json['upper']);
     attr = json['attr'];
     cntInfo = json['cnt_info'];
     link = json['link'];
@@ -86,7 +86,7 @@ class FavDetailItemData {
     bvId = json['bv_id'];
     bvid = json['bvid'];
     ogv = json['ogv'];
-    stat = Stat.fromJson(json['cnt_info']);
+    stat = json['cnt_info'] == null ? null : Stat.fromJson(json['cnt_info']);
     cid = json['ugc'] != null ? json['ugc']['first_cid'] : null;
     if (json['link'] != null && json['link'].contains('/bangumi')) {
       epId = resolveEpId(json['link']);

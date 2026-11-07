@@ -131,9 +131,10 @@ class _DynamicsPageState extends State<DynamicsPage>
       return Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            toolbarHeight: _dynamicsController.headerVisible.value ||
-                    !GStorage.setting.get(SettingBoxKey.hideDynamicHeader,
-                        defaultValue: true)
+            toolbarHeight: !_dynamicsController.tabsHidden &&
+                    (_dynamicsController.headerVisible.value ||
+                        !GStorage.setting.get(SettingBoxKey.hideDynamicHeader,
+                            defaultValue: true))
                 ? 50
                 : 0,
             elevation: 0,
@@ -144,34 +145,37 @@ class _DynamicsPageState extends State<DynamicsPage>
                       ? Brightness.dark
                       : Brightness.light,
             ),
-            title: SizedBox(
-                height: 50,
-                child: TabBar(
-                    controller: _dynamicsController.tabController,
-                    isScrollable: true,
-                    dividerColor: Colors.transparent,
-                    dividerHeight: 0,
-                    tabAlignment: TabAlignment.center,
-                    indicatorColor: Theme.of(context).colorScheme.primary,
-                    labelColor: Theme.of(context).colorScheme.primary,
-                    unselectedLabelColor:
-                        Theme.of(context).colorScheme.onSurface,
-                    labelStyle: TextStyle(
-                      fontSize:
-                          Theme.of(context).textTheme.labelMedium!.fontSize,
-                    ),
-                    tabs: _dynamicsController.visibleTabs
-                        .map((id) => Tab(text: DynamicTabConfig.labels[id]!))
-                        .toList(),
-                    onTap: (index) {
-                      print('index: $index');
-                      feedBack();
-                      _dynamicsController.animateToTop();
-                      // _dynamicsController.tabController
-                      // _dynamicsController.tabController.index = index;
-                      // _dynamicsController.onSelectType(index);
-                      // _
-                    })),
+            title: _dynamicsController.tabsHidden
+                ? null
+                : SizedBox(
+                    height: 50,
+                    child: TabBar(
+                        controller: _dynamicsController.tabController,
+                        isScrollable: true,
+                        dividerColor: Colors.transparent,
+                        dividerHeight: 0,
+                        tabAlignment: TabAlignment.center,
+                        indicatorColor: Theme.of(context).colorScheme.primary,
+                        labelColor: Theme.of(context).colorScheme.primary,
+                        unselectedLabelColor:
+                            Theme.of(context).colorScheme.onSurface,
+                        labelStyle: TextStyle(
+                          fontSize:
+                              Theme.of(context).textTheme.labelMedium!.fontSize,
+                        ),
+                        tabs: _dynamicsController.visibleTabs
+                            .map(
+                                (id) => Tab(text: DynamicTabConfig.labels[id]!))
+                            .toList(),
+                        onTap: (index) {
+                          print('index: $index');
+                          feedBack();
+                          _dynamicsController.animateToTop();
+                          // _dynamicsController.tabController
+                          // _dynamicsController.tabController.index = index;
+                          // _dynamicsController.onSelectType(index);
+                          // _
+                        })),
           ),
           drawer: _dynamicsController.showUpPanel &&
                   upPanelPosition == UpPanelPosition.leftDrawer

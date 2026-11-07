@@ -1,14 +1,47 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
-import 'package:pilipalaz/http/user.dart';
-import 'package:pilipalaz/models/user/fav_folder.dart';
-import 'package:pilipalaz/utils/storage.dart';
+import '../../http/user.dart';
+import '../../http/video.dart';
+import '../../models/user/fav_folder.dart';
+import '../../models/user/fav_detail.dart';
+import '../../utils/storage.dart';
+
+typedef FolderRequest = Future<dynamic> Function(
+    {required int pn, required int ps, required int mid});
+typedef FavoriteRequest = Future<dynamic> Function(
+    {required int mediaId, required int pn, required int ps});
+
+class FavoriteFolderState {
+  final List<FavDetailItemData> videos = [];
+  int nextPage = 1;
+  bool hasMore = true;
+  bool loading = false;
+  String? error;
+  double scrollOffset = 0;
+}
 
 class MediaController extends GetxController {
-  Rx<FavFolderData> favFolderData = FavFolderData().obs;
-  Box userInfoCache = GStorage.userInfo;
-  RxBool userLogin = false.obs;
+  MediaController(
+      {FolderRequest? folderRequest, FavoriteRequest? favoriteRequest})
+      : folderRequest = folderRequest ?? UserHttp.userfavFolder,
+        favoriteRequest = favoriteRequest ?? UserHttp.userFavFolderDetail;
+  final FolderRequest folderRequest;
+  final FavoriteRequest favoriteRequest;
+  final RxBool userLogin = false.obs;
+  final List<FavFolderItemData> folders = [];
+  final Map<int, FavoriteFolderState> folderStates = {};
+  final ScrollController scrollController = ScrollController();
+  StreamSubscription? _accountSubscription;
+  Worker? _loginWorker;
+  int? mid;
+  int? _accountMid;
+  int? selectedFolderId;
+  int _generation = 0;
+  bool foldersLoading = false;
+  bool _initialized = false;
+  String? foldersError;
+  FavoriteFolderState? get current => folderStates[selectedFolderId];
   List list = [
     // {
     //   'icon': Icons.file_download_outlined,
@@ -42,27 +75,147 @@ class MediaController extends GetxController {
           }),
     },
   ];
-  var userInfo;
-  int? mid;
-  final ScrollController scrollController = ScrollController();
 
   @override
   void onInit() {
     super.onInit();
-    userInfo = userInfoCache.get('userInfoCache');
-    userLogin.value = userInfo != null;
+    _accountMid = GStorage.userInfo.get('userInfoCache')?.mid;
+    userLogin.value = _accountMid != null;
+    _accountSubscription = GStorage.userInfo
+        .watch(key: 'userInfoCache')
+        .listen((_) => syncAccount());
+    _loginWorker = ever(userLogin, (_) => syncAccount());
   }
 
-  Future<dynamic> queryFavFolder() async {
-    if (!userLogin.value) {
-      return {'status': false, 'data': [], 'msg': '未登录'};
+  void syncAccount() {
+    final int? next = GStorage.userInfo.get('userInfoCache')?.mid;
+    if (next == _accountMid) return;
+    _accountMid = next;
+    mid = next;
+    userLogin.value = next != null;
+    _generation++;
+    folders.clear();
+    folderStates.clear();
+    selectedFolderId = null;
+    foldersError = null;
+    foldersLoading = false;
+    _initialized = false;
+    if (scrollController.hasClients) scrollController.jumpTo(0);
+    update();
+    if (next != null) ensureLoaded();
+  }
+
+  Future<void> ensureLoaded() async {
+    syncAccount();
+    if (!_initialized && !foldersLoading && _accountMid != null)
+      await queryFavFolder();
+  }
+
+  Future<void> queryFavFolder() async {
+    final account = _accountMid;
+    final generation = ++_generation;
+    final selected = selectedFolderId;
+    folders.clear();
+    folderStates.clear();
+    selectedFolderId = null;
+    foldersError = null;
+    _initialized = true;
+    foldersLoading = account != null;
+    update();
+    if (account == null) return;
+    try {
+      int page = 1;
+      bool more = true;
+      while (more) {
+        final res = await folderRequest(pn: page, ps: 10, mid: account);
+        if (isClosed || generation != _generation) return;
+        if (res == null || res['status'] != true)
+          throw StateError(res?['msg'] ?? '获取收藏夹失败');
+        final FavFolderData data = res['data'];
+        final entries = data.list ?? <FavFolderItemData>[];
+        final ids = folders.map((e) => e.id).toSet();
+        final fresh =
+            entries.where((e) => e.id != null && ids.add(e.id)).toList();
+        folders.addAll(fresh);
+        more = data.hasMore == true && fresh.isNotEmpty;
+        page++;
+      }
+    } catch (_) {
+      if (isClosed || generation != _generation) return;
+      foldersError = '收藏夹加载失败，点击重试';
     }
-    var res = await await UserHttp.userfavFolder(
-      pn: 1,
-      ps: 10,
-      mid: mid ?? GStorage.userInfo.get('userInfoCache').mid,
-    );
-    favFolderData.value = res['data'];
-    return res;
+    if (isClosed || generation != _generation) return;
+    foldersLoading = false;
+    if (folders.isNotEmpty) {
+      selectedFolderId =
+          folders.any((e) => e.id == selected) ? selected : folders.first.id;
+      folderStates[selectedFolderId!] = FavoriteFolderState();
+    }
+    update();
+    if (selectedFolderId != null) await loadVideos(selectedFolderId!);
+  }
+
+  void selectFolder(int id) {
+    if (!folders.any((e) => e.id == id)) return;
+    if (scrollController.hasClients && current != null)
+      current!.scrollOffset = scrollController.offset;
+    selectedFolderId = id;
+    final state = folderStates.putIfAbsent(id, () => FavoriteFolderState());
+    update();
+    if (state.nextPage == 1 && !state.loading && state.hasMore) loadVideos(id);
+  }
+
+  Future<void> loadVideos(int id) async {
+    final state = folderStates[id];
+    if (state == null || state.loading || !state.hasMore || _accountMid == null)
+      return;
+    final generation = _generation;
+    state.loading = true;
+    state.error = null;
+    update();
+    try {
+      final res =
+          await favoriteRequest(mediaId: id, pn: state.nextPage, ps: 20);
+      if (isClosed || generation != _generation || folderStates[id] != state)
+        return;
+      if (res == null || res['status'] != true)
+        throw StateError(res?['msg'] ?? '加载失败');
+      final FavDetailData data = res['data'];
+      final items = data.medias ?? <FavDetailItemData>[];
+      final known = state.videos.map((e) => e.id).whereType<int>().toSet();
+      final fresh =
+          items.where((e) => e.id == null || known.add(e.id!)).toList();
+      state.videos.addAll(fresh);
+      state.nextPage++;
+      state.hasMore = data.hasMore == true && fresh.isNotEmpty;
+    } catch (error) {
+      debugPrint('收藏视频加载失败: $error');
+      if (isClosed || generation != _generation) return;
+      state.error = '视频加载失败，点击重试';
+    } finally {
+      if (!isClosed && generation == _generation && folderStates[id] == state) {
+        state.loading = false;
+        update();
+      }
+    }
+  }
+
+  Future<void> cancelFavorite(int folderId, int videoId) async {
+    final generation = _generation;
+    final res =
+        await VideoHttp.favVideo(aid: videoId, addIds: '', delIds: '$folderId');
+    if (isClosed || generation != _generation) return;
+    if (res['status'] != true) throw StateError(res['msg'] ?? '取消收藏失败');
+    folderStates[folderId]?.videos.removeWhere((e) => e.id == videoId);
+    update();
+  }
+
+  @override
+  void onClose() {
+    _generation++;
+    _accountSubscription?.cancel();
+    _loginWorker?.dispose();
+    scrollController.dispose();
+    super.onClose();
   }
 }

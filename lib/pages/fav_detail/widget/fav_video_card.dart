@@ -1,13 +1,9 @@
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'favorite_actions.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:pilipalaz/common/constants.dart';
 import 'package:pilipalaz/common/widgets/stat/danmu.dart';
 import 'package:pilipalaz/common/widgets/stat/view.dart';
-import 'package:pilipalaz/http/search.dart';
-import 'package:pilipalaz/http/video.dart';
-import 'package:pilipalaz/models/common/search_type.dart';
-import 'package:pilipalaz/utils/id_utils.dart';
 import 'package:pilipalaz/utils/utils.dart';
 import 'package:pilipalaz/common/widgets/network_img_layer.dart';
 import '../../../common/widgets/badge.dart';
@@ -28,42 +24,9 @@ class FavVideoCardH extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int id = videoItem.id;
-    String bvid = videoItem.bvid ?? IdUtils.av2bv(id);
     String heroTag = Utils.makeHeroTag(id);
     return InkWell(
-      onTap: () async {
-        // int? seasonId;
-        String? epId;
-        if (videoItem.ogv != null &&
-            (videoItem.ogv['type_name'] == '番剧' ||
-                videoItem.ogv['type_name'] == '国创')) {
-          videoItem.cid = await SearchHttp.ab2c(bvid: bvid);
-          // seasonId = videoItem.ogv['season_id'];
-          epId = videoItem.epId;
-        } else if (videoItem.page == 0 || videoItem.page > 1) {
-          var result = await VideoHttp.videoIntro(bvid: bvid);
-          if (result['status']) {
-            epId = result['data'].epId;
-          } else {
-            SmartDialog.showToast(result['msg']);
-          }
-        }
-
-        Map<String, String> parameters = {
-          'bvid': bvid,
-          'cid': videoItem.cid.toString(),
-          'epId': epId ?? '',
-        };
-        // if (seasonId != null) {
-        //   parameters['seasonId'] = seasonId.toString();
-        // }
-        Get.toNamed('/video', parameters: parameters, arguments: {
-          'videoItem': videoItem,
-          'heroTag': heroTag,
-          'videoType':
-              epId != null ? SearchType.media_bangumi : SearchType.video,
-        });
-      },
+      onTap: () => openFavoriteVideo(videoItem, heroTag),
       child: LayoutBuilder(
         builder: (context, boxConstraints) {
           double width =

@@ -56,6 +56,7 @@ class DynamicsController extends GetxController
   }
 
   List<String> visibleTabs = [];
+  bool tabsHidden = false;
   final RxInt tabRevision = 0.obs;
   final RxBool headerVisible = true.obs;
   String get currentTab => visibleTabs[tabController.index];
@@ -63,12 +64,14 @@ class DynamicsController extends GetxController
 
   void applyTabConfig({bool initial = false}) {
     final previous = initial ? null : currentTab;
-    final ids =
+    final configuredIds =
         DynamicTabConfig.normalize(setting.get(SettingBoxKey.dynamicTabs));
     final defaultId = DynamicTabConfig.defaultId(
         setting.get(SettingBoxKey.defaultDynamicTab),
         setting.get(SettingBoxKey.defaultDynamicType),
-        ids);
+        configuredIds);
+    tabsHidden = configuredIds.isEmpty;
+    final ids = tabsHidden ? [defaultId] : configuredIds;
     setting.put(SettingBoxKey.defaultDynamicTab, defaultId);
     final selected = initial
         ? defaultId

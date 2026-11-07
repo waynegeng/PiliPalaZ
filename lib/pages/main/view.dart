@@ -101,7 +101,7 @@ class _MainAppState extends State<MainApp>
     }
 
     if (currentPage is MediaPage) {
-      _mediaController.queryFavFolder();
+      _mediaController.ensureLoaded();
     }
   }
 

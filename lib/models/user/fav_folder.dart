@@ -15,7 +15,7 @@ class FavFolderData {
         ? json['list']
             .map<FavFolderItemData>((e) => FavFolderItemData.fromJson(e))
             .toList()
-        : [FavFolderItemData()];
+        : [];
     hasMore = json['has_more'];
   }
 }

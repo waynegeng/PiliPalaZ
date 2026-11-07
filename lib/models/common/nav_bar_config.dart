@@ -30,14 +30,14 @@ List defaultNavigationBars = [
   {
     'id': 2,
     'icon': const Icon(
-      Icons.video_collection_outlined,
+      Icons.person_outline,
       size: 21,
     ),
     'selectIcon': const Icon(
-      Icons.video_collection,
+      Icons.person,
       size: 21,
     ),
-    'label': "媒体库",
+    'label': "我的",
     'count': 0,
   }
 ];

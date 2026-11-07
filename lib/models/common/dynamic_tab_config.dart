@@ -11,7 +11,7 @@ class DynamicTabConfig {
     if (value is! List) return List.of(ids);
     final result =
         value.whereType<String>().where(ids.contains).toSet().toList();
-    return result.isEmpty ? ['all'] : result;
+    return result;
   }
 
   static String defaultId(dynamic value, dynamic legacy, List<String> visible) {
@@ -20,6 +20,7 @@ class DynamicTabConfig {
         : legacy is int && legacy >= 0 && legacy < ids.length
             ? ids[legacy]
             : 'all';
+    if (visible.isEmpty) return ids.contains(id) ? id : 'all';
     return visible.contains(id) ? id : visible.first;
   }
 }

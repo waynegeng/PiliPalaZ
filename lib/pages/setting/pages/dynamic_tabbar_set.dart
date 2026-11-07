@@ -54,12 +54,15 @@ class _DynamicTabbarSetPageState extends State<DynamicTabbarSetPage> {
                     value: defaultId,
                     decoration: const InputDecoration(labelText: '默认标签'),
                     items: order
-                        .where(visible.contains)
+                        .where((id) => visible.isEmpty || visible.contains(id))
                         .map((id) => DropdownMenuItem(
                             value: id,
                             child: Text(DynamicTabConfig.labels[id]!)))
                         .toList(),
                     onChanged: (id) => setState(() => defaultId = id!)),
+                const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text('全部取消勾选后隐藏顶栏，仅显示默认标签的内容。')),
                 TextButton(
                     onPressed: () => setState(() {
                           visible = List.of(DynamicTabConfig.ids);
@@ -80,17 +83,13 @@ class _DynamicTabbarSetPageState extends State<DynamicTabbarSetPage> {
                   secondary: const Icon(Icons.drag_indicator),
                   value: visible.contains(id),
                   onChanged: (enabled) {
-                    if (enabled == false && visible.length == 1) {
-                      SmartDialog.showToast('至少保留一个标签');
-                      return;
-                    }
                     setState(() {
                       if (enabled == true) {
                         visible.add(id);
                       } else {
                         visible.remove(id);
                       }
-                      if (!visible.contains(defaultId))
+                      if (visible.isNotEmpty && !visible.contains(defaultId))
                         defaultId = order.firstWhere(visible.contains);
                     });
                   })

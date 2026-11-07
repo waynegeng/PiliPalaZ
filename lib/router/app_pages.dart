@@ -48,11 +48,6 @@ import '../pages/setting/pages/font_size_select.dart';
 import '../pages/setting/pages/gesture_select.dart';
 import '../pages/setting/pages/home_tabbar_set.dart';
 import '../pages/setting/pages/play_speed_set.dart';
-import '../pages/setting/recommend_setting.dart';
-import '../pages/setting/play_setting.dart';
-import '../pages/setting/video_setting.dart';
-import '../pages/setting/privacy_setting.dart';
-import '../pages/setting/style_setting.dart';
 import '../pages/setting/hidden_settings.dart';
 import '../pages/subscription/index.dart';
 import '../pages/subscription_detail/index.dart';
@@ -133,28 +128,37 @@ class Routes {
         page: () => const SettingsCategoryPage(category: 'account')),
     CustomGetPage(
         name: '/homeOptions',
-        page: () => const SettingsCategoryPage(category: 'homeOptions')),
+        page: () => const SettingsCategoryPage(category: 'home')),
     CustomGetPage(
         name: '/otherSetting',
-        page: () => const SettingsCategoryPage(category: 'other')),
+        page: () => const SettingsCategoryPage(category: 'general')),
     CustomGetPage(
         name: '/dynamicTabbarSetting',
         page: () => const DynamicTabbarSetPage()),
     // 推荐流设置
     CustomGetPage(
-        name: '/recommendSetting', page: () => const RecommendSetting()),
+        name: '/recommendSetting',
+        page: () => const SettingsCategoryPage(category: 'home')),
     // 音视频设置
-    CustomGetPage(name: '/videoSetting', page: () => const VideoSetting()),
+    CustomGetPage(
+        name: '/videoSetting',
+        page: () => const SettingsCategoryPage(category: 'playback')),
     // 播放器设置
-    CustomGetPage(name: '/playSetting', page: () => const PlaySetting()),
+    CustomGetPage(
+        name: '/playSetting',
+        page: () => const SettingsCategoryPage(category: 'playback')),
     // 外观设置
-    CustomGetPage(name: '/styleSetting', page: () => const StyleSetting()),
+    CustomGetPage(
+        name: '/styleSetting',
+        page: () => const SettingsCategoryPage(category: 'general')),
     // 隐私设置
-    CustomGetPage(name: '/privacySetting', page: () => const PrivacySetting()),
+    CustomGetPage(
+        name: '/privacySetting',
+        page: () => const SettingsCategoryPage(category: 'account')),
     // 其它设置
     CustomGetPage(
         name: '/extraSetting',
-        page: () => const SettingsCategoryPage(category: 'other')),
+        page: () => const SettingsCategoryPage(category: 'general')),
     //
     CustomGetPage(name: '/blackListPage', page: () => const BlackListPage()),
     CustomGetPage(name: '/colorSetting', page: () => const ColorSelectPage()),

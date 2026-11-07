@@ -58,11 +58,10 @@ class UserHttp {
       'up_mid': mid,
     });
     if (res.data['code'] == 0) {
-      late FavFolderData data;
-      if (res.data['data'] != null) {
-        data = FavFolderData.fromJson(res.data['data']);
-        return {'status': true, 'data': data};
-      }
+      final data = res.data['data'] == null
+          ? FavFolderData(count: 0, list: [], hasMore: false)
+          : FavFolderData.fromJson(res.data['data']);
+      return {'status': true, 'data': data};
     } else {
       return {
         'status': false,

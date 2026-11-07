@@ -40,10 +40,10 @@ void main() {
     await temp.delete(recursive: true);
   });
 
-  test('tab configuration removes unknown/duplicate IDs and never empties', () {
+  test('tab configuration preserves explicit empty list', () {
     expect(DynamicTabConfig.normalize(['video', 'up', 'video', 'bad']),
         ['video', 'up']);
-    expect(DynamicTabConfig.normalize([]), ['all']);
+    expect(DynamicTabConfig.normalize([]), isEmpty);
     expect(DynamicTabConfig.normalize(null), DynamicTabConfig.ids);
   });
   test('legacy default maps to stable ID regardless of visible order', () {
@@ -219,7 +219,7 @@ void main() {
     expect(find.text('0'), findsNothing);
     expect(tester.takeException(), isNull);
   });
-  testWidgets('tab editor keeps one visible tab and persists across reopen',
+  testWidgets('tab editor allows hiding every tab and persists across reopen',
       (tester) async {
     Widget editor() => GetMaterialApp(
         builder: FlutterSmartDialog.init(), home: const DynamicTabbarSetPage());
@@ -234,13 +234,13 @@ void main() {
         tester
             .widget<CheckboxListTile>(find.byKey(const ValueKey('video')))
             .value,
-        isTrue);
+        isFalse);
     await tester.runAsync(() async {
       await tester.tap(find.text('保存'));
       await GStorage.setting.flush();
     });
     await tester.pump();
-    expect(GStorage.setting.get(SettingBoxKey.dynamicTabs), ['video']);
+    expect(GStorage.setting.get(SettingBoxKey.dynamicTabs), isEmpty);
     expect(GStorage.setting.get(SettingBoxKey.defaultDynamicTab), 'video');
     SmartDialog.dismiss(status: SmartStatus.allToast);
     await tester.pumpAndSettle();
@@ -255,7 +255,7 @@ void main() {
         tester
             .widget<CheckboxListTile>(find.byKey(const ValueKey('video')))
             .value,
-        isTrue);
+        isFalse);
     expect(tester.takeException(), isNull);
   });
   testWidgets('settings contains exactly five primary categories',
