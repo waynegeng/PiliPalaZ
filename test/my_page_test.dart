@@ -2,6 +2,8 @@ import 'package:pilipalaz/pages/about/index.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:pilipalaz/models/model_owner.dart';
 import 'package:pilipalaz/http/init.dart';
+import 'package:pilipalaz/http/api.dart';
+import 'package:pilipalaz/pages/fav_search/view.dart';
 import 'package:pilipalaz/pages/dynamics/view.dart';
 import 'package:pilipalaz/pages/fav_detail/widget/fav_video_card.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +28,7 @@ import 'package:pilipalaz/utils/storage.dart';
 class _TestAboutController extends AboutController {
   @override
   Future<void> getCurrentApp() async {
-    currentVersion.value = '1.2.3+114518';
+    currentVersion.value = '1.2.4+114519';
   }
 
   @override
@@ -59,11 +61,61 @@ void main() {
     GStorage.userInfo = await Hive.openBox('user');
     GStorage.localCache = await Hive.openBox('local');
   });
+  bool messagesRead = false;
   setUp(() async {
+    messagesRead = false;
     await GStorage.setting.clear();
     await GStorage.userInfo.clear();
+    Request();
+    Request.dio.interceptors.clear();
+    Request.dio.interceptors
+        .add(dio.InterceptorsWrapper(onRequest: (options, handler) {
+      final mid = GStorage.userInfo.get('userInfoCache')?.mid;
+      final responses = {
+        Api.userInfo: {
+          'mid': mid,
+          'uname': '测试用户',
+          'level_info': {
+            'current_level': 6,
+            'current_exp': 30000,
+            'next_exp': '--'
+          },
+          'money': 12.5
+        },
+        Api.userStatOwner: {'following': 2, 'follower': 3, 'dynamic_count': 4},
+        Api.msgFeedUnread: messagesRead
+            ? <String, dynamic>{}
+            : {'at': 2, 'like': 96, 'reply': 1, 'sys_msg': 1},
+        Api.privateUnread: {
+          'follow_unread': messagesRead ? 0 : 2,
+          'unfollow_unread': messagesRead ? 0 : 1
+        },
+        Api.userFavFolderDetail: {
+          'has_more': false,
+          'medias': [
+            if (options.queryParameters['type'] == 1 &&
+                options.queryParameters['media_id'] == 1 &&
+                options.queryParameters['keyword'] == '默认')
+              {
+                'id': 170001,
+                'title': '只在默认收藏夹',
+                'cover': 'https://example.test/video.jpg',
+                'page': 1,
+                'bvid': 'BV17x411w7KC',
+                'ugc': {'first_cid': 123}
+              }
+          ]
+        },
+      };
+      handler.resolve(dio.Response(
+          requestOptions: options,
+          data: {'code': 0, 'data': responses[options.path] ?? {}}));
+    }));
   });
-  tearDown(() => Get.reset());
+  tearDown(() async {
+    await Get.deleteAll(force: true);
+    Get.reset();
+  });
   tearDownAll(() async {
     await Hive.close();
     await temp.delete(recursive: true);
@@ -313,26 +365,146 @@ void main() {
     });
     final key = GlobalKey();
     await tester.pumpWidget(GetMaterialApp(
-        home: RepaintBoundary(key: key, child: const MediaPage())));
-    await tester.runAsync(() => precacheImage(
-        const AssetImage('assets/images/logo/logo_android_2.png'),
-        tester.element(find.byType(MediaPage))));
+        home: RepaintBoundary(key: key, child: const MediaPage()),
+        getPages: [
+          GetPage(name: '/favSearch', page: () => const FavSearchPage()),
+          for (final name in ['follow', 'fan', 'member'])
+            GetPage(
+                name: '/$name', page: () => Scaffold(body: Text('列表 $name'))),
+          GetPage(
+              name: '/video', page: () => const Scaffold(body: Text('播放器'))),
+          GetPage(
+              name: '/whisper', page: () => const Scaffold(body: Text('消息页'))),
+        ]));
     await tester.pumpAndSettle();
     expect(tester.getTopLeft(find.text('观看记录')).dy,
         tester.getTopLeft(find.text('我的订阅')).dy);
     expect(tester.getTopLeft(find.text('稍后再看')).dy,
-        tester.getTopLeft(find.text('创作中心')).dy);
+        tester.getTopLeft(find.text('消息通知')).dy);
     expect(find.text('收藏视频示例'), findsOneWidget);
     expect(find.byType(FavVideoCardH), findsWidgets);
     expect(find.text('管理'), findsNothing);
     expect(find.text('我的'), findsNothing);
-    expect(find.bySemanticsLabel('PiliPalaZ'), findsOneWidget);
+    expect(find.bySemanticsLabel('PiliPalaZ'), findsNothing);
+    expect(find.text('测试用户'), findsOneWidget);
+    expect(find.textContaining('已满级'), findsOneWidget);
+    expect(find.text('99+'), findsOneWidget);
+    expect(controller.unreadCount(true), 7);
+    await tester.tap(find.text('测试用户'));
+    await tester.pumpAndSettle();
+    expect(find.byType(MediaPage), findsOneWidget);
+    for (final entry in {'关注': 'follow', '粉丝': 'fan', '动态': 'member'}.entries) {
+      await tester.tap(find.text(entry.key));
+      await tester.pumpAndSettle();
+      expect(find.text('列表 ${entry.value}'), findsOneWidget);
+      expect(Get.parameters['mid'], '1');
+      Get.back();
+      await tester.pumpAndSettle();
+    }
+    await tester.runAsync(
+        () => GStorage.setting.put(SettingBoxKey.dynamicBadgeMode, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('99+'), findsOneWidget);
+    for (final mode in [1, 0, 2]) {
+      await tester.runAsync(
+          () => GStorage.setting.put(SettingBoxKey.messageBadgeMode, mode));
+      await tester.pumpAndSettle();
+      final badge = tester.widget<Badge>(find.byType(Badge));
+      expect(badge.isLabelVisible, mode != 0);
+      expect(badge.label != null, mode == 2);
+    }
+    await tester.tap(find.text('消息通知'));
+    await tester.pumpAndSettle();
+    expect(find.text('消息页'), findsOneWidget);
+    messagesRead = true;
+    Get.back();
+    await tester.pumpAndSettle();
+    expect(tester.widget<Badge>(find.byType(Badge)).isLabelVisible, isFalse);
     await screenshot(tester, key, 'my-light');
     await tester.tap(find.byKey(const ValueKey('folder-2')));
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
     expect(controller.selectedFolderId, 2);
+    await tester.tap(find.byTooltip('搜索全部收藏夹'));
+    await tester.pumpAndSettle();
+    expect(Get.parameters['searchType'], '1');
+    expect(Get.parameters['mediaId'], '1');
+    await tester.enterText(find.byType(TextField), '默认');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('只在默认收藏夹'));
+    await tester.pumpAndSettle();
+    expect(find.text('播放器'), findsOneWidget);
+    Get.back();
+    await tester.pumpAndSettle();
+    Get.back();
+    await tester.pumpAndSettle();
+    expect(controller.selectedFolderId, 2);
     expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets(
+      'global favorite search discards late replies and retries the same page',
+      (tester) async {
+    await tester.runAsync(() => login(1));
+    final oldReply = Completer<void>();
+    final requests = <String>[];
+    bool fail = true;
+    Request.dio.interceptors.clear();
+    Request.dio.interceptors
+        .add(dio.InterceptorsWrapper(onRequest: (options, handler) async {
+      if (options.path != Api.userFavFolderDetail) {
+        handler
+            .resolve(dio.Response(requestOptions: options, data: {'code': -1}));
+        return;
+      }
+      final args = options.queryParameters;
+      final query = args['keyword'];
+      final page = args['pn'];
+      requests.add('$query/$page');
+      expect(args['type'], 1);
+      expect(args['media_id'], 42);
+      expect(args['ps'], 20);
+      if (query == 'old') await oldReply.future;
+      final code = (page == 2 && fail) ? -1 : 0;
+      handler.resolve(dio.Response(requestOptions: options, data: {
+        'code': code,
+        'data': {
+          'has_more': page == 1,
+          'medias': [
+            {'id': page, 'title': '$query result $page'}
+          ]
+        }
+      }));
+    }));
+    await tester.pumpWidget(GetMaterialApp(home: const Scaffold(), getPages: [
+      GetPage(name: '/favSearch', page: () => const FavSearchPage())
+    ]));
+    Get.toNamed('/favSearch', parameters: {'searchType': '1', 'mediaId': '42'});
+    await tester.pumpAndSettle();
+    final field = find.byType(TextField);
+    await tester.enterText(field, 'old');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pump();
+    await tester.enterText(field, 'new');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    oldReply.complete();
+    await tester.pumpAndSettle();
+    expect(find.text('old result 1'), findsNothing);
+    expect(find.text('new result 1'), findsOneWidget);
+    await tester.tap(find.text('加载更多'));
+    await tester.pumpAndSettle();
+    fail = false;
+    await tester.tap(find.text('加载失败，点击重试'));
+    await tester.pumpAndSettle();
+    expect(find.text('new result 2'), findsOneWidget);
+    expect(requests, ['old/1', 'new/1', 'new/2', 'new/2']);
+    await tester.runAsync(() => login(2));
+    await tester.pumpAndSettle();
+    expect(find.text('new result 1'), findsNothing);
+    expect(find.textContaining('账号已切换'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -343,6 +515,11 @@ void main() {
     final key = GlobalKey();
     await tester.pumpWidget(GetMaterialApp(
         theme: ThemeData.dark(),
+        getPages: [
+          GetPage(
+              name: '/loginPage',
+              page: () => const Scaffold(body: Text('账号登录')))
+        ],
         builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: const TextScaler.linear(2)),
@@ -350,7 +527,12 @@ void main() {
         home: RepaintBoundary(key: key, child: const MediaPage())));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+    expect(find.text('登录'), findsOneWidget);
     await screenshot(tester, key, 'my-dark-large');
+    await tester.ensureVisible(find.byTooltip('搜索全部收藏夹'));
+    await tester.tap(find.byTooltip('搜索全部收藏夹'));
+    await tester.pumpAndSettle();
+    expect(find.text('账号登录'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -388,7 +570,7 @@ void main() {
         .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('当前版本'), 400);
-    expect(find.text('1.2.3+114518'), findsOneWidget);
+    expect(find.text('1.2.4+114519'), findsOneWidget);
     expect(find.text('关于'), findsNothing);
     expect(find.byType(Image), findsNothing);
     expect(find.text('最新版本'), findsOneWidget);

@@ -1,122 +1,78 @@
-import 'package:easy_debounce/easy_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pilipalaz/common/skeleton/video_card_h.dart';
-import 'package:pilipalaz/common/widgets/no_data.dart';
-import 'package:pilipalaz/pages/fav_detail/widget/fav_video_card.dart';
-
+import '../../common/constants.dart';
+import '../fav_detail/widget/fav_video_card.dart';
 import 'controller.dart';
 
 class FavSearchPage extends StatefulWidget {
   const FavSearchPage({super.key});
-
   @override
   State<FavSearchPage> createState() => _FavSearchPageState();
 }
 
 class _FavSearchPageState extends State<FavSearchPage> {
-  final FavSearchController _favSearchCtr = Get.put(FavSearchController());
-  late ScrollController scrollController;
-  late int searchType;
-
+  final search = Get.put(FavSearchController());
   @override
-  void initState() {
-    super.initState();
-    searchType = int.parse(Get.parameters['searchType']!);
-    scrollController = _favSearchCtr.scrollController;
-    scrollController.addListener(
-      () {
-        if (scrollController.position.pixels >=
-            scrollController.position.maxScrollExtent - 300) {
-          EasyThrottle.throttle('fav', const Duration(seconds: 1), () {
-            _favSearchCtr.onLoad();
-          });
-        }
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    scrollController.removeListener(() {});
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(
-        titleSpacing: 0,
-        actions: [
-          IconButton(
-              tooltip: '搜索',
-              onPressed: () => _favSearchCtr.submit(),
-              icon: const Icon(Icons.search_outlined, size: 22)),
-          const SizedBox(width: 10)
-        ],
-        title: Obx(
-          () => TextField(
-            autofocus: true,
-            focusNode: _favSearchCtr.searchFocusNode,
-            controller: _favSearchCtr.controller.value,
-            textInputAction: TextInputAction.search,
-            onChanged: (value) => _favSearchCtr.onChange(value),
-            textAlignVertical: TextAlignVertical.center,
-            decoration: InputDecoration(
-              hintText: _favSearchCtr.hintText,
-              border: InputBorder.none,
-              suffixIcon: IconButton(
-                tooltip: '清空',
-                icon: Icon(
-                  Icons.clear,
-                  size: 22,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                onPressed: () => _favSearchCtr.onClear(),
-              ),
-            ),
-            onSubmitted: (String value) => _favSearchCtr.submit(),
-          ),
-        ),
-      ),
-      body: Obx(
-        () => _favSearchCtr.loadingStatus.value && _favSearchCtr.favList.isEmpty
-            ? ListView.builder(
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return const VideoCardHSkeleton();
-                },
-              )
-            : _favSearchCtr.favList.isNotEmpty
-                ? ListView.builder(
-                    controller: scrollController,
-                    itemCount: _favSearchCtr.favList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == _favSearchCtr.favList.length) {
-                        return Container(
-                          height: MediaQuery.of(context).padding.bottom + 60,
-                          padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).padding.bottom),
-                        );
-                      } else {
-                        return FavVideoCardH(
-                          videoItem: _favSearchCtr.favList[index],
-                          searchType: searchType,
-                          callFn: () => searchType != 1
-                              ? _favSearchCtr
-                                  .onCancelFav(_favSearchCtr.favList[index].id!)
-                              : {},
-                        );
-                      }
-                    },
-                  )
-                : const CustomScrollView(
-                    slivers: <Widget>[
-                      NoData(),
-                    ],
-                  ),
-      ),
-    );
-  }
+          titleSpacing: 0,
+          title: TextField(
+              autofocus: true,
+              focusNode: search.searchFocusNode,
+              controller: search.controller,
+              textInputAction: TextInputAction.search,
+              onSubmitted: (_) => search.submit(),
+              decoration: InputDecoration(
+                  hintText: search.searchType == 1 ? '搜索全部收藏夹' : '搜索当前收藏夹',
+                  border: InputBorder.none,
+                  suffixIcon: IconButton(
+                      tooltip: '清空',
+                      icon: const Icon(Icons.clear, size: 22),
+                      onPressed: () {
+                        if (search.controller.text.isEmpty) {
+                          Get.back();
+                        } else {
+                          search.clear();
+                        }
+                      }))),
+          actions: [
+            IconButton(
+                tooltip: '搜索',
+                icon: const Icon(Icons.search_outlined),
+                onPressed: search.submit)
+          ]),
+      body: Obx(() {
+        if (search.accountChanged.value)
+          return const Center(child: Text('账号已切换，请返回后重新搜索'));
+        if (!search.submitted.value) return const SizedBox.shrink();
+        return CustomScrollView(controller: search.scrollController, slivers: [
+          SliverPadding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: StyleString.safeSpace),
+              sliver: SliverGrid(
+                  gridDelegate: favoriteVideoGridDelegate(),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final video = search.favList[index];
+                    return FavVideoCardH(
+                        videoItem: video,
+                        searchType: search.searchType,
+                        callFn: () => search.onCancelFav(video.id!));
+                  }, childCount: search.favList.length))),
+          SliverToBoxAdapter(
+              child: Center(
+                  child: search.loading.value
+                      ? const CircularProgressIndicator()
+                      : search.error.value
+                          ? TextButton(
+                              onPressed: search.load,
+                              child: const Text('加载失败，点击重试'))
+                          : search.favList.isEmpty
+                              ? const Text('没有找到收藏视频')
+                              : search.hasMore.value
+                                  ? TextButton(
+                                      onPressed: search.load,
+                                      child: const Text('加载更多'))
+                                  : const SizedBox.shrink())),
+        ]);
+      }));
 }

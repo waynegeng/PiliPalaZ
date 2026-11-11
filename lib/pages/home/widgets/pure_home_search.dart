@@ -56,8 +56,18 @@ class _PureHomeSearchState extends State<PureHomeSearch> with RouteAware {
     final viewport = MediaQuery.sizeOf(context);
     final top = math.max(64.0,
         viewport.height * .38 - 28 - MediaQuery.viewPaddingOf(context).top);
+    final logoSize = math.min(150.0, top - 16);
     return Stack(
       children: [
+        Positioned(
+            top: top - logoSize - 12,
+            left: 0,
+            right: 0,
+            child: Center(
+                child: Image.asset('assets/images/logo/logo_android_2.png',
+                    height: logoSize,
+                    width: logoSize,
+                    semanticLabel: 'PiliPalaZ'))),
         Positioned(
           top: top,
           left: 0,

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../http/user.dart';
 import '../../http/video.dart';
+import '../../http/msg.dart';
+import '../../models/user/info.dart';
+import '../../models/user/stat.dart';
+import '../../models/msg/msgfeed_unread.dart';
 import '../../models/user/fav_folder.dart';
 import '../../models/user/fav_detail.dart';
 import '../../utils/storage.dart';
@@ -42,7 +46,81 @@ class MediaController extends GetxController {
   bool _initialized = false;
   String? foldersError;
   FavoriteFolderState? get current => folderStates[selectedFolderId];
-  List list = [
+  UserInfoData? profile;
+  UserStat? stats;
+  MsgFeedUnread? feed;
+  int? privateUnread;
+  int _accountRequest = 0;
+
+  int unreadCount(bool disableLikes) =>
+      (feed?.reply ?? 0) +
+      (feed?.at ?? 0) +
+      (disableLikes ? 0 : feed?.like ?? 0) +
+      (feed?.sys_msg ?? 0) +
+      (privateUnread ?? 0);
+
+  Future<void> onEnter() => Future.wait([ensureLoaded(), refreshAccount()]);
+  Future<void> refreshPage() =>
+      Future.wait([queryFavFolder(), refreshAccount()]);
+
+  Future<void> refreshAccount() async {
+    final account = _accountMid;
+    if (account == null) return;
+    final ticket = ++_accountRequest;
+    bool current() =>
+        !isClosed &&
+        ticket == _accountRequest &&
+        account == GStorage.userInfo.get('userInfoCache')?.mid;
+    Future<void> fetch<T>(
+        Future<T> Function() load, void Function(T) apply) async {
+      try {
+        final value = await load();
+        if (current()) {
+          apply(value);
+          update();
+        }
+      } catch (error) {
+        debugPrint('账号信息刷新失败: $error');
+      }
+    }
+
+    await Future.wait([
+      fetch(UserHttp.userInfo, (res) {
+        if (res['status'] == true && res['data'].mid == account)
+          profile = res['data'];
+      }),
+      fetch(UserHttp.userStatOwner, (res) {
+        if (res['status'] == true) stats = res['data'];
+      }),
+      fetch(MsgHttp.msgFeedUnread, (res) {
+        if (res['status'] == true) feed = MsgFeedUnread.fromJson(res['data']);
+      }),
+      fetch(MsgHttp.privateUnreadCount, (value) {
+        if (value != null) privateUnread = value;
+      }),
+    ]);
+  }
+
+  Future<void> openMessages() async {
+    if (_accountMid == null) {
+      await Get.toNamed('/loginPage');
+      return;
+    }
+    await Get.toNamed('/whisper');
+    if (!isClosed) await refreshAccount();
+  }
+
+  void openSearch() {
+    if (_accountMid == null) {
+      Get.toNamed('/loginPage');
+      return;
+    }
+    if (foldersLoading || folders.isEmpty) return;
+    Get.toNamed('/favSearch',
+        parameters: {'searchType': '1', 'mediaId': '${folders.first.id}'});
+  }
+
+  late final List list = [
     // {
     //   'icon': Icons.file_download_outlined,
     //   'title': '离线缓存',
@@ -66,20 +144,17 @@ class MediaController extends GetxController {
       'onTap': () => Get.toNamed('/later'),
     },
     {
-      'icon': Icons.create_outlined,
-      'title': '创作中心',
-      'onTap': () => Get.toNamed('/webview', parameters: {
-            'url': 'https://member.bilibili.com/platform/home',
-            'type': 'url',
-            'pageTitle': "创作中心（建议浏览器打开）",
-          }),
+      'icon': Icons.notifications_none,
+      'title': '消息通知',
+      'onTap': openMessages,
     },
   ];
 
   @override
   void onInit() {
     super.onInit();
-    _accountMid = GStorage.userInfo.get('userInfoCache')?.mid;
+    profile = GStorage.userInfo.get('userInfoCache');
+    _accountMid = mid = profile?.mid;
     userLogin.value = _accountMid != null;
     _accountSubscription = GStorage.userInfo
         .watch(key: 'userInfoCache')
@@ -90,6 +165,11 @@ class MediaController extends GetxController {
   void syncAccount() {
     final int? next = GStorage.userInfo.get('userInfoCache')?.mid;
     if (next == _accountMid) return;
+    _accountRequest++;
+    profile = GStorage.userInfo.get('userInfoCache');
+    stats = null;
+    feed = null;
+    privateUnread = null;
     _accountMid = next;
     mid = next;
     userLogin.value = next != null;
@@ -102,7 +182,7 @@ class MediaController extends GetxController {
     _initialized = false;
     if (scrollController.hasClients) scrollController.jumpTo(0);
     update();
-    if (next != null) ensureLoaded();
+    if (next != null) onEnter();
   }
 
   Future<void> ensureLoaded() async {
@@ -135,7 +215,7 @@ class MediaController extends GetxController {
         final entries = data.list ?? <FavFolderItemData>[];
         final ids = folders.map((e) => e.id).toSet();
         final fresh =
-            entries.where((e) => e.id != null && ids.add(e.id)).toList();
+            entries.where((e) => (e.id ?? 0) > 0 && ids.add(e.id)).toList();
         folders.addAll(fresh);
         more = data.hasMore == true && fresh.isNotEmpty;
         page++;

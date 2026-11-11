@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pilipalaz/utils/storage.dart';
 import 'widgets/pure_home_search.dart';
-import 'package:pilipalaz/common/widgets/network_img_layer.dart';
 import 'package:pilipalaz/utils/feed_back.dart';
 import './controller.dart';
 import 'package:pilipalaz/common/widgets/spring_physics.dart';
@@ -65,13 +64,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         body: _homeController.pureHome
-            ? Stack(children: [
-                const Positioned.fill(child: PureHomeSearch()),
-                Positioned(
-                    top: 6,
-                    right: 14,
-                    child: HomeUserActions(ctr: _homeController))
-              ])
+            ? const PureHomeSearch()
             : Column(
                 children: [
                   if (_homeController.sideBarPosition == SideBarPosition.none ||
@@ -166,180 +159,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             duration: const Duration(milliseconds: 500),
             height: snapshot.data ? 52 : 0,
             padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
-            child: SearchBarAndUser(
-              ctr: ctr,
-            ),
+            child: Row(children: [SearchBar(ctr: ctr)]),
           ),
         );
       },
-    );
-  }
-}
-
-class SearchBarAndUser extends StatelessWidget {
-  const SearchBarAndUser({
-    super.key,
-    required this.ctr,
-  });
-
-  final HomeController ctr;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SearchBar(ctr: ctr),
-        const SizedBox(width: 4),
-        HomeUserActions(ctr: ctr),
-      ],
-    );
-  }
-}
-
-/// Shared message and profile actions for both home modes.
-class HomeUserActions extends StatelessWidget {
-  const HomeUserActions({super.key, required this.ctr});
-  final HomeController ctr;
-  @override
-  Widget build(BuildContext context) =>
-      Row(mainAxisSize: MainAxisSize.min, children: [
-        Obx(() => ctr.userLogin.value
-            ? ClipRect(
-                child: IconButton(
-                  tooltip: '消息',
-                  onPressed: () => Get.toNamed('/whisper'),
-                  icon: const Icon(
-                    Icons.notifications_none,
-                  ),
-                ),
-              )
-            : const SizedBox.shrink()),
-        const SizedBox(width: 8),
-        Semantics(
-            label: "我的",
-            child: Obx(
-              () => ctr.userLogin.value
-                  ? Stack(
-                      children: [
-                        NetworkImgLayer(
-                          type: 'avatar',
-                          width: 34,
-                          height: 34,
-                          src: ctr.userFace.value,
-                        ),
-                        Positioned.fill(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => ctr.showUserInfoDialog(context),
-                              splashColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer
-                                  .withOpacity(0.3),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(50),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  : DefaultUser(
-                      callback: () => ctr.showUserInfoDialog(context)),
-            )),
-      ]);
-}
-
-class UserAndSearchVertical extends StatelessWidget {
-  const UserAndSearchVertical({
-    super.key,
-    required this.ctr,
-  });
-
-  final HomeController ctr;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Semantics(
-            label: "我的",
-            child: Obx(
-              () => ctr.userLogin.value
-                  ? Stack(
-                      children: [
-                        NetworkImgLayer(
-                          type: 'avatar',
-                          width: 34,
-                          height: 34,
-                          src: ctr.userFace.value,
-                        ),
-                        Positioned.fill(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => ctr.showUserInfoDialog(context),
-                              splashColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer
-                                  .withOpacity(0.3),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(50),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  : DefaultUser(
-                      callback: () => ctr.showUserInfoDialog(context)),
-            )),
-        const SizedBox(height: 8),
-        Obx(() => ctr.userLogin.value
-            ? IconButton(
-                tooltip: '消息',
-                onPressed: () => Get.toNamed('/whisper'),
-                icon: const Icon(
-                  Icons.notifications_none,
-                ),
-              )
-            : const SizedBox.shrink()),
-        IconButton(
-          icon: const Icon(
-            Icons.search_outlined,
-            semanticLabel: '搜索',
-          ),
-          onPressed: () => Get.toNamed('/search'),
-        ),
-      ],
-    );
-  }
-}
-
-class DefaultUser extends StatelessWidget {
-  const DefaultUser({super.key, this.callback});
-  final Function? callback;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 38,
-      height: 38,
-      child: IconButton(
-        tooltip: '默认用户头像',
-        style: ButtonStyle(
-          padding: WidgetStateProperty.all(EdgeInsets.zero),
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            return Theme.of(context).colorScheme.onInverseSurface;
-          }),
-        ),
-        onPressed: () => callback?.call(),
-        icon: Icon(
-          Icons.person_rounded,
-          size: 22,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
     );
   }
 }

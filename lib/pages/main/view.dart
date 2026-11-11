@@ -104,7 +104,7 @@ class _MainAppState extends State<MainApp>
     }
 
     if (currentPage is MediaPage) {
-      _mediaController.ensureLoaded();
+      _mediaController.onEnter();
     }
   }
 
@@ -126,7 +126,10 @@ class _MainAppState extends State<MainApp>
           selectedIndex: _mainController.selectedIndex,
           onDestinationSelected: (value) => setIndex(value),
           labelType: NavigationRailLabelType.none,
-          leading: UserAndSearchVertical(ctr: _homeController),
+          leading: IconButton(
+              tooltip: '搜索',
+              icon: const Icon(Icons.search_outlined),
+              onPressed: () => Get.toNamed('/search')),
           destinations: _mainController.navigationBars
               .map(
                 (e) => NavigationRailDestination(

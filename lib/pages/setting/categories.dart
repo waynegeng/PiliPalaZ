@@ -1,3 +1,6 @@
+import 'widgets/select_dialog.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../models/common/dynamic_badge_mode.dart';
 import 'play_setting.dart';
 import 'video_setting.dart';
 import 'privacy_setting.dart';
@@ -82,6 +85,37 @@ class SettingsCategoryPage extends StatelessWidget {
               ],
               if (category == 'account') ...[
                 const PrivacySetting(embedded: true),
+                ValueListenableBuilder(
+                    valueListenable: GStorage.setting
+                        .listenable(keys: [SettingBoxKey.messageBadgeMode]),
+                    builder: (context, box, _) {
+                      final mode = DynamicBadgeMode.values[box.get(
+                          SettingBoxKey.messageBadgeMode,
+                          defaultValue: DynamicBadgeMode.number.index)];
+                      return ListTile(
+                          leading: const Icon(Icons.notifications_outlined),
+                          title: const Text('消息通知角标'),
+                          subtitle: Text(mode.description),
+                          onTap: () async {
+                            final chosen = await showDialog<DynamicBadgeMode>(
+                                context: context,
+                                builder: (context) =>
+                                    SelectDialog<DynamicBadgeMode>(
+                                        title: '消息通知角标',
+                                        value: mode,
+                                        values: [
+                                          for (final option
+                                              in DynamicBadgeMode.values)
+                                            {
+                                              'title': option.description,
+                                              'value': option
+                                            }
+                                        ]));
+                            if (chosen != null)
+                              await box.put(
+                                  SettingBoxKey.messageBadgeMode, chosen.index);
+                          });
+                    }),
                 Obx(() => controller.userLogin.value
                     ? ListTile(
                         title: const Text('退出登录'),

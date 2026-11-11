@@ -233,6 +233,7 @@ class SettingBoxKey {
       hideTabBar = 'hideTabBar', // 收起底栏
       tabbarSort = 'tabbarSort', // 首页tabbar
       dynamicBadgeMode = 'dynamicBadgeMode',
+      messageBadgeMode = 'messageBadgeMode',
       hiddenSettingUnlocked = 'hiddenSettingUnlocked',
       enableGradientBg = 'enableGradientBg';
 }

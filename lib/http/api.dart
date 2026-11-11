@@ -419,6 +419,8 @@ class Api {
   /// w_rid=8641d157fb9a9255eb2159f316ee39e2&
   /// wts=1697305010
 
+  static const String privateUnread =
+      '${HttpString.tUrl}/session_svr/v1/session_svr/single_unread';
   static const String sessionList =
       '${HttpString.tUrl}/session_svr/v1/session_svr/get_sessions';
 

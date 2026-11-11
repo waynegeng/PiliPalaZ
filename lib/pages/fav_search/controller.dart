@@ -1,3 +1,5 @@
+import 'dart:async';
+import '../../utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -7,73 +9,105 @@ import 'package:pilipalaz/models/user/fav_detail.dart';
 import '../../http/video.dart';
 
 class FavSearchController extends GetxController {
-  final ScrollController scrollController = ScrollController();
-  Rx<TextEditingController> controller = TextEditingController().obs;
-  final FocusNode searchFocusNode = FocusNode();
-  RxString searchKeyWord = ''.obs; // 搜索词
-  String hintText = '请输入已收藏视频名称'; // 默认
-  RxBool loadingStatus = false.obs; // 加载状态
-  RxString loadingText = '加载中...'.obs; // 加载提示
-  bool hasMore = false;
-  late int searchType;
-  late int mediaId;
-
-  int currentPage = 1; // 当前页
-  int count = 0; // 总数
-  RxList<FavDetailItemData> favList = <FavDetailItemData>[].obs;
+  final scrollController = ScrollController();
+  final controller = TextEditingController();
+  final searchFocusNode = FocusNode();
+  final favList = <FavDetailItemData>[].obs;
+  final loading = false.obs;
+  final error = false.obs;
+  final hasMore = false.obs;
+  final submitted = false.obs;
+  late final int searchType;
+  late final int mediaId;
+  String keyword = '';
+  int nextPage = 1;
+  int _generation = 0;
+  late final int? _account;
+  StreamSubscription? _accountWatch;
+  final accountChanged = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     searchType = int.parse(Get.parameters['searchType']!);
     mediaId = int.parse(Get.parameters['mediaId']!);
-  }
-
-  // 清空搜索
-  void onClear() {
-    if (searchKeyWord.value.isNotEmpty && controller.value.text != '') {
-      controller.value.clear();
-      searchKeyWord.value = '';
-    } else {
-      Get.back();
-    }
-  }
-
-  void onChange(value) {
-    searchKeyWord.value = value;
-  }
-
-  //  提交搜索内容
-  void submit() {
-    loadingStatus.value = true;
-    currentPage = 1;
-    searchFav();
-  }
-
-  // 搜索收藏夹视频
-  Future searchFav({type = 'init'}) async {
-    var res = await await UserHttp.userFavFolderDetail(
-      pn: currentPage,
-      ps: 20,
-      mediaId: mediaId,
-      keyword: searchKeyWord.value,
-      type: searchType,
-    );
-    if (res['status']) {
-      if (currentPage == 1 && type == 'init') {
-        favList.value = res['data'].medias;
-      } else if (type == 'onLoad') {
-        favList.addAll(res['data'].medias);
+    _account = GStorage.userInfo.get('userInfoCache')?.mid;
+    _accountWatch =
+        GStorage.userInfo.watch(key: 'userInfoCache').listen((event) {
+      if (event.value?.mid != _account) {
+        clear();
+        accountChanged.value = true;
       }
-      hasMore = res['data'].hasMore;
-    }
-    currentPage += 1;
-    loadingStatus.value = false;
+    });
+    scrollController.addListener(_onScroll);
   }
 
-  onLoad() {
-    if (!hasMore) return;
-    searchFav(type: 'onLoad');
+  void _onScroll() {
+    if (scrollController.position.extentAfter < 300 && !error.value) load();
+  }
+
+  void clear() {
+    _generation++;
+    controller.clear();
+    keyword = '';
+    submitted.value = loading.value = error.value = hasMore.value = false;
+    favList.clear();
+  }
+
+  void submit() {
+    final query = controller.text.trim();
+    if (query.isEmpty || accountChanged.value) return;
+    _generation++;
+    keyword = query;
+    searchFocusNode.unfocus();
+    hasMore.value = false;
+    if (scrollController.hasClients) scrollController.jumpTo(0);
+    favList.clear();
+    nextPage = 1;
+    submitted.value = hasMore.value = true;
+    loading.value = false;
+    load();
+  }
+
+  Future<void> load() async {
+    if (accountChanged.value || !hasMore.value || loading.value) return;
+    final ticket = _generation;
+    bool current() =>
+        !isClosed &&
+        ticket == _generation &&
+        _account == GStorage.userInfo.get('userInfoCache')?.mid;
+    loading.value = true;
+    error.value = false;
+    try {
+      final res = await UserHttp.userFavFolderDetail(
+          pn: nextPage,
+          ps: 20,
+          mediaId: mediaId,
+          keyword: keyword,
+          type: searchType);
+      if (!current()) return;
+      if (res['status'] != true) throw StateError('收藏搜索失败');
+      final FavDetailData data = res['data'];
+      final items = data.medias ?? [];
+      favList.addAll(items);
+      hasMore.value = data.hasMore == true && items.isNotEmpty;
+      nextPage++;
+    } catch (_) {
+      if (current()) error.value = true;
+    } finally {
+      if (current()) loading.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    _generation++;
+    _accountWatch?.cancel();
+    scrollController.removeListener(_onScroll);
+    scrollController.dispose();
+    searchFocusNode.dispose();
+    controller.dispose();
+    super.onClose();
   }
 
   onCancelFav(int id) async {

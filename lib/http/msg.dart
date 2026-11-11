@@ -142,6 +142,18 @@ class MsgHttp {
     }
   }
 
+  // The account summary groups unread private messages by follow relationship.
+  static Future<int?> privateUnreadCount() async {
+    final res =
+        await Request().get(Api.privateUnread, data: {'unread_type': 0});
+    if (res.data['code'] != 0) return null;
+    final data = res.data['data'];
+    if (data is! Map ||
+        data['follow_unread'] is! int ||
+        data['unfollow_unread'] is! int) return null;
+    return data['follow_unread'] + data['unfollow_unread'];
+  }
+
   // 会话列表
   static Future sessionList({int? endTs}) async {
     Map<String, dynamic> params = {

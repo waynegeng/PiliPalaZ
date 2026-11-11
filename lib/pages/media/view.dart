@@ -4,6 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import '../main/controller.dart';
 import 'controller.dart';
+import 'account_header.dart';
+import '../../models/common/dynamic_badge_mode.dart';
+import '../../utils/storage.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../fav_detail/widget/fav_video_card.dart';
 import '../../common/constants.dart';
 
@@ -26,7 +30,7 @@ class _MediaPageState extends State<MediaPage>
         ? Get.find<MediaController>()
         : Get.put(MediaController());
     controller.scrollController.addListener(_onScroll);
-    controller.ensureLoaded();
+    controller.onEnter();
   }
 
   void _onScroll() {
@@ -93,7 +97,6 @@ class _MediaPageState extends State<MediaPage>
         buttonHeight = math.max(buttonHeight, painter.height + 60);
         painter.dispose();
       }
-      final headerExtent = buttonHeight * 2 + 266;
       return Scaffold(
         appBar: AppBar(automaticallyImplyLeading: false, actions: [
           IconButton(
@@ -110,18 +113,13 @@ class _MediaPageState extends State<MediaPage>
               child: GetBuilder<MediaController>(builder: (controller) {
                 final state = controller.current;
                 return RefreshIndicator(
-                  onRefresh: controller.queryFavFolder,
+                  onRefresh: controller.refreshPage,
                   child: CustomScrollView(
                     controller: controller.scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
                       SliverToBoxAdapter(
-                          child: Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Image.asset(
-                                  'assets/images/logo/logo_android_2.png',
-                                  height: 150,
-                                  semanticLabel: 'PiliPalaZ'))),
+                          child: AccountHeader(controller: controller)),
                       SliverPadding(
                           padding: const EdgeInsets.all(16),
                           sliver: SliverGrid(
@@ -147,10 +145,13 @@ class _MediaPageState extends State<MediaPage>
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Icon(entry['icon'],
-                                                size: 28,
-                                                color:
-                                                    theme.colorScheme.primary),
+                                            if (index == 3)
+                                              _messageIcon(theme)
+                                            else
+                                              Icon(entry['icon'],
+                                                  size: 28,
+                                                  color: theme
+                                                      .colorScheme.primary),
                                             const SizedBox(height: 8),
                                             Text(entry['title'],
                                                 style:
@@ -163,22 +164,23 @@ class _MediaPageState extends State<MediaPage>
                           )),
                       SliverToBoxAdapter(
                           child: ListTile(
+                        trailing: IconButton(
+                            tooltip: '搜索全部收藏夹',
+                            icon: const Icon(Icons.search_outlined, size: 20),
+                            onPressed: controller.userLogin.value &&
+                                    (controller.foldersLoading ||
+                                        controller.folders.isEmpty)
+                                ? null
+                                : controller.openSearch),
                         title: Text('我的收藏', style: theme.textTheme.titleMedium),
                         leading: Icon(Icons.bookmarks_outlined,
                             color: theme.colorScheme.primary),
                       )),
-                      if (!controller.userLogin.value)
-                        SliverToBoxAdapter(
-                            child: _message('登录后查看收藏视频',
-                                action: '登录',
-                                onTap: () => Get.toNamed('/login')))
-                      else if (controller.foldersLoading)
+                      if (controller.userLogin.value &&
+                          controller.foldersLoading)
                         const SliverToBoxAdapter(
-                            child: Padding(
-                                padding: EdgeInsets.all(32),
-                                child:
-                                    Center(child: CircularProgressIndicator())))
-                      else ...[
+                            child: Center(child: CircularProgressIndicator()))
+                      else if (controller.userLogin.value) ...[
                         if (controller.foldersError != null)
                           SliverToBoxAdapter(
                               child: _message(controller.foldersError!,
@@ -188,34 +190,44 @@ class _MediaPageState extends State<MediaPage>
                             controller.foldersError == null)
                           SliverToBoxAdapter(child: _message('还没有收藏夹')),
                         if (controller.folders.isNotEmpty)
-                          SliverPersistentHeader(
-                              pinned: true,
-                              delegate: _FolderHeader(
-                                  height: math.max(56, scale.scale(20) + 28),
-                                  child: Material(
-                                    color: theme.colorScheme.surface,
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: Row(children: [
-                                        for (final folder in controller.folders)
-                                          Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 8),
-                                              child: ChoiceChip(
-                                                key: ValueKey(
-                                                    'folder-${folder.id}'),
-                                                label: Text(
-                                                    folder.title ?? '未命名收藏夹'),
-                                                selected: folder.id ==
-                                                    controller.selectedFolderId,
-                                                onSelected: (_) => _select(
-                                                    folder.id!, headerExtent),
-                                              )),
-                                      ]),
-                                    ),
-                                  ))),
+                          SliverLayoutBuilder(
+                              builder: (context, constraints) =>
+                                  SliverPersistentHeader(
+                                      pinned: true,
+                                      delegate: _FolderHeader(
+                                          height: math.max(
+                                              56, scale.scale(20) + 28),
+                                          child: Material(
+                                            color: theme.colorScheme.surface,
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16),
+                                              child: Row(children: [
+                                                for (final folder
+                                                    in controller.folders)
+                                                  Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              right: 8),
+                                                      child: ChoiceChip(
+                                                        key: ValueKey(
+                                                            'folder-${folder.id}'),
+                                                        label: Text(
+                                                            folder.title ??
+                                                                '未命名收藏夹'),
+                                                        selected: folder.id ==
+                                                            controller
+                                                                .selectedFolderId,
+                                                        onSelected: (_) => _select(
+                                                            folder.id!,
+                                                            constraints
+                                                                .precedingScrollExtent),
+                                                      )),
+                                              ]),
+                                            ),
+                                          )))),
                         if (state != null) ...[
                           SliverPadding(
                               padding: const EdgeInsets.symmetric(
@@ -265,6 +277,25 @@ class _MediaPageState extends State<MediaPage>
       );
     });
   }
+
+  Widget _messageIcon(ThemeData theme) => ValueListenableBuilder(
+      valueListenable: GStorage.setting.listenable(
+          keys: [SettingBoxKey.messageBadgeMode, SettingBoxKey.disableLikeMsg]),
+      builder: (context, box, _) {
+        final mode = box.get(SettingBoxKey.messageBadgeMode,
+            defaultValue: DynamicBadgeMode.number.index);
+        final count = controller.unreadCount(
+            box.get(SettingBoxKey.disableLikeMsg, defaultValue: false));
+        return Badge(
+            isLabelVisible: count > 0 && mode != DynamicBadgeMode.hidden.index,
+            label: mode == DynamicBadgeMode.number.index &&
+                    controller.feed != null &&
+                    controller.privateUnread != null
+                ? Text(count > 99 ? '99+' : '$count')
+                : null,
+            child: Icon(Icons.notifications_none,
+                size: 28, color: theme.colorScheme.primary));
+      });
 
   Widget _message(String text, {String? action, VoidCallback? onTap}) =>
       Padding(

@@ -55,17 +55,10 @@ void main() {
     expect(find.byType(TabBarView), findsNothing);
     expect(Get.isRegistered<RcmdController>(), isFalse);
     final controller = Get.find<HomeController>();
-    expect(find.byType(HomeUserActions), findsOneWidget);
-    expect(find.byTooltip('默认用户头像'), findsOneWidget);
-    controller.userLogin.value = true;
-    await tester.pump();
-    expect(find.byTooltip('消息'), findsOneWidget);
-    await tester.tap(find.byTooltip('消息'));
-    await tester.pumpAndSettle();
-    expect(find.text('消息列表'), findsOneWidget);
-    Get.back();
-    await tester.pumpAndSettle();
-    controller.userLogin.value = false;
+    expect(find.byTooltip('消息'), findsNothing);
+    expect(find.byTooltip('默认用户头像'), findsNothing);
+    expect(tester.getBottomLeft(find.bySemanticsLabel('PiliPalaZ')).dy,
+        lessThan(tester.getTopLeft(find.byType(TextField)).dy));
     controller.onRefresh();
     controller.animateToTop();
     expect(tester.takeException(), isNull);
@@ -137,7 +130,7 @@ void main() {
     addTearDown(tester.view.resetViewInsets);
     await tester.pumpAndSettle();
     expect(tester.getCenter(field), position);
-    expect(find.byType(HomeUserActions), findsOneWidget);
+    expect(find.byTooltip('消息'), findsNothing);
     expect(tester.takeException(), isNull);
   });
   testWidgets(
